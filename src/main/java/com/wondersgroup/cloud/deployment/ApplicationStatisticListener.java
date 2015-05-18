@@ -7,8 +7,8 @@ import java.util.Map;
 import com.wondersgroup.cloud.deployment.service.IAppStatisticService;
 
 /**
- * ¼ÇÂ¼×´Ì¬ÈçÏÂ app1 {serverA: 1close, serverB: 1close, serverC: 0close} app2
- * {serverD: 1start, serverE: 1start, serverF: 0start}
+ * è®°å½•çŠ¶æ€å¦‚ä¸‹ app1 {serverA: 1close, serverB: 1close, serverC: 0close} app2
+ * {serverD: 1start, serverE: 1start, serverF: 0start} 
  */
 public class ApplicationStatisticListener implements INodeListener,
 		IAppStatisticService {
@@ -24,7 +24,7 @@ public class ApplicationStatisticListener implements INodeListener,
 
 	@Override
 	public int getStatus(String appId) {
-		// ÕâÀï¹æÔòÊÇ Èç¹ûÓĞÒ»¸öserverÊÇ0×´Ì¬ ÄÇÃ´¾Í´ú±í¸ÃappÕâ¸ö×´Ì¬Îª0 ,±ÈÈç ¹Ø±Õ×´Ì¬Ê§°Ü£¬ÆäËü¾Í¹Ø±Õ³É¹¦
+		// è¿™é‡Œè§„åˆ™æ˜¯ å¦‚æœæœ‰ä¸€ä¸ªserveræ˜¯0çŠ¶æ€ é‚£ä¹ˆå°±ä»£è¡¨è¯¥appè¿™ä¸ªçŠ¶æ€ä¸º0 ,æ¯”å¦‚ å…³é—­çŠ¶æ€å¤±è´¥ï¼Œå…¶å®ƒå°±å…³é—­æˆåŠŸ
 		if (this.appStatus.containsKey(appId)) {
 			Iterator<Integer> iter = this.appStatus.get(appId).values()
 					.iterator();
@@ -48,14 +48,14 @@ public class ApplicationStatisticListener implements INodeListener,
 
 	@Override
 	public void fireNodeEvent(String msg, String srcIp, Object... params) {
-		// ³õÊ¼»¯ÄÇÒ»ÏÂ
+		// åˆå§‹åŒ–é‚£ä¸€ä¸‹
 		if (Node.runStateOf(node.selectKey(msg)) == Node.DEPLOY) {
 			ICommand command = (ICommand) params[0];
 			String appId = command.getAppId();
 			String[] ips = command.getDoingIPs();
 			this.updateStatus(appId, ips, Node.DEPLOY);
-		} else if (node.getIp() != srcIp) {// È·±£²»ÊÇ×´Ì¬¸üÌæ
-			// ÆäËüÇé¿ö ¶¼ÊÇµ¥·şÎñÆ÷Ö±½Ó·´À¡½á¹ûĞÅÏ¢
+		} else if (node.getIp() != srcIp) {
+			// ç¡®ä¿ä¸æ˜¯çŠ¶æ€æ›´æ›¿ å…¶å®ƒæƒ…å†µ éƒ½æ˜¯å•æœåŠ¡å™¨ç›´æ¥åé¦ˆç»“æœä¿¡æ¯
 			int key = node.selectKey(msg);
 			int status = key;// Node.runStateOf(key);
 			String content = msg.substring(msg.indexOf(","),
@@ -76,7 +76,7 @@ public class ApplicationStatisticListener implements INodeListener,
 		}
 
 		if (ips.length == 1 && status != Node.DEPLOY) {
-			// ¼ì²éÃ¿¸ö·şÎñÆ÷×´Ì¬¿´ÊÇ·ñ¿ÉÒÔ´¥·¢ĞÂµÄ×´Ì¬ÁË
+			// æ£€æŸ¥æ¯ä¸ªæœåŠ¡å™¨çŠ¶æ€çœ‹æ˜¯å¦å¯ä»¥è§¦å‘æ–°çš„çŠ¶æ€äº†
 			Iterator<Integer> iter = this.appStatus.get(appId).values()
 					.iterator();
 			int finalStatus = Node.SUCCESS;
@@ -93,8 +93,7 @@ public class ApplicationStatisticListener implements INodeListener,
 				}
 			}
 			if (finalStatus == Node.SUCCESS) {
-				// ½øÈëÏÂÒ»¸ö½×¶Î
-				// ·¢ÆğÕâ¸ö½×¶ÎÍê½áµÄÏûÏ¢
+				// è¿›å…¥ä¸‹ä¸€ä¸ªé˜¶æ®µ å‘èµ·è¿™ä¸ªé˜¶æ®µå®Œç»“çš„æ¶ˆæ¯
 				ICommand close_command = new DeployCommand(appId, Node.NEXT);
 				node.fireNodeEvent(close_command.toString(), node.getIp(),
 						state);
@@ -102,7 +101,7 @@ public class ApplicationStatisticListener implements INodeListener,
 			} else {
 				// fireEvent Failure APP
 				System.out.println(appId + "---" + state
-						+ "--ÏîÄ¿ÏÖÔÚ»¹ÎŞ·¨ÍêÈ«ÅĞ¶¨Îª½×¶ÎĞÔÊ§°Ü");
+						+ "--é¡¹ç›®ç°åœ¨è¿˜æ— æ³•å®Œå…¨åˆ¤å®šä¸ºé˜¶æ®µæ€§å¤±è´¥");
 			}
 		}
 	}

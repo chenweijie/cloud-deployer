@@ -15,8 +15,6 @@ public class DeleteReceiveHandler extends AbstractReceiveHandler implements
 		String[] args = content.split(",");
 		String appId = args[0];
 		String ipList = args[1];
-		// TODO 从IPList列表中找到是否是本地IP
-		// 如果是的话 在本地执行 execute相关指令
 		try {
 			Process proc = Runtime.getRuntime().exec(
 					"/root/apache-tomcat-6.0.39/server_delete.sh " + appId);

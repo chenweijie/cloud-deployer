@@ -17,8 +17,8 @@ public class StartReceiveHandler extends AbstractReceiveHandler implements
 		String[] args = content.split(",");
 		String appId = args[0];
 		String ipList = args[1];
-		// TODO ´ÓIPListÁĞ±íÖĞÕÒµ½ÊÇ·ñÊÇ±¾µØIP
-		// Èç¹ûÊÇµÄ»° ÔÚ±¾µØÖ´ĞĞ executeÏà¹ØÖ¸Áî
+		// TODO ä»IPListåˆ—è¡¨ä¸­æ‰¾åˆ°æ˜¯å¦æ˜¯æœ¬åœ°IP
+		// å¦‚æœæ˜¯çš„è¯ åœ¨æœ¬åœ°æ‰§è¡Œ executeç›¸å…³æŒ‡ä»¤
 		try {
 			Process proc = Runtime.getRuntime().exec(
 					"/root/apache-tomcat-6.0.39/server_start.sh " + appId);

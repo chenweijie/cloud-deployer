@@ -64,13 +64,13 @@ public class MutilGroupNetworkCommander implements NetworkCommander {
 	public void acceptMsg(DatagramPacket recv) {
 		try {
 			mutilcastSocket.receive(recv);
-			System.out.println("ÊÕµ½Êı¾İ:::" + new String(recv.getData()).trim() + "--" + ((InetSocketAddress)recv.getSocketAddress()).getHostString());
+			System.out.println("æ”¶åˆ°æ•°æ®:::" + new String(recv.getData()).trim() + "--" + ((InetSocketAddress)recv.getSocketAddress()).getHostString());
 			String rawContent = new String(recv.getData()).trim();
 			String srcIp = rawContent.substring(rawContent.lastIndexOf(",") + 1);
-			// ½»¸ønodeÖĞ×¢²áµÄÖ¸Áî´¦ÀíÀàÊµÏÖ
+			// äº¤ç»™nodeä¸­æ³¨å†Œçš„æŒ‡ä»¤å¤„ç†ç±»å®ç°
 			node.handleReceive(rawContent.substring(0, rawContent.indexOf(",")), (InetSocketAddress)recv.getSocketAddress(), srcIp);
 		} catch (Exception e) {
-			// Ïß³ÌÄÚ²¿´òÈÕÖ¾°É
+			// çº¿ç¨‹å†…éƒ¨æ‰“æ—¥å¿—å§
 			e.printStackTrace();
 		}
 	}

@@ -7,17 +7,17 @@ import com.wondersgroup.cloud.deployment.service.ApplicatioinServiceImpl;
 import com.wondersgroup.cloud.deployment.service.ApplicationService;
 
 /*
- * ·¢ÃüÁî·½ Ò²¾ÍÊÇËùÎ½µÄÖĞĞÄ¶Ë
- * 1.½ÓÊÜµ½deployeeµÄ¼ÓÃËÇëÇó
- * 2.Åú×¼¼ÓÃË
- * 3.½ÓÊÜÍâ²¿Ö¸Áî£¬È»ºó·¢ËÍÖ¸Áî¸ø¸÷Ì¨deployee
- * 4.¶ÔÓÚÖ¸ÁîÍêÕû¶È½øĞĞ°Ñ¿Ø£¨±ÈÈç³ö´íÇé¿ö¿ØÖÆ£©
+ * å‘å‘½ä»¤æ–¹ ä¹Ÿå°±æ˜¯æ‰€è°“çš„ä¸­å¿ƒç«¯
+ * 1.æ¥å—åˆ°deployeeçš„åŠ ç›Ÿè¯·æ±‚
+ * 2.æ‰¹å‡†åŠ ç›Ÿ
+ * 3.æ¥å—å¤–éƒ¨æŒ‡ä»¤ï¼Œç„¶åå‘é€æŒ‡ä»¤ç»™å„å°deployee
+ * 4.å¯¹äºæŒ‡ä»¤å®Œæ•´åº¦è¿›è¡ŒæŠŠæ§ï¼ˆæ¯”å¦‚å‡ºé”™æƒ…å†µæ§åˆ¶ï¼‰
  */
 public class Deployer {
 
 	public static void main(String[] args) throws UnknownHostException {
 		
-		// // TODO: Íê³ÉÑéÖ¤µÈÒ»ÏµÁĞ·¢²¼Ö¸Áî¹¤×÷
+		// // TODO: å®ŒæˆéªŒè¯ç­‰ä¸€ç³»åˆ—å‘å¸ƒæŒ‡ä»¤å·¥ä½œ
 		// ICommand command = new PlainCommand("close app1");
 		// node.executeCommand(command);
 		// command = new PlainCommand("delete app1");
@@ -33,7 +33,7 @@ public class Deployer {
 		Thread deamonAppStatus = new Thread(new Runnable(){
 			@Override
 			public void run() {
-				// ÎÒÒ²Ã»°ì·¨
+				// æˆ‘ä¹Ÿæ²¡åŠæ³•
 				int status = applicationService.getAppStatus("app1");
 			}});
 		deamonAppStatus.setDaemon(true);

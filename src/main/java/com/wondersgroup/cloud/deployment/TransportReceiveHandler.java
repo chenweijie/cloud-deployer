@@ -15,8 +15,8 @@ public class TransportReceiveHandler extends AbstractReceiveHandler implements
 		String[] args = content.split(",");
 		final String appId = args[0];
 		String ipList = args[1];
-		// TODO ´ÓIPListÁĞ±íÖĞÕÒµ½ÊÇ·ñÊÇ±¾µØIP
-		// Èç¹ûÊÇµÄ»° ÔÚ±¾µØÖ´ĞĞ executeÏà¹ØÖ¸Áî
+		// TODO ä»IPListåˆ—è¡¨ä¸­æ‰¾åˆ°æ˜¯å¦æ˜¯æœ¬åœ°IP
+		// å¦‚æœæ˜¯çš„è¯ åœ¨æœ¬åœ°æ‰§è¡Œ executeç›¸å…³æŒ‡ä»¤
 
 		Thread backend = new Thread(new Runnable() {
 
@@ -36,7 +36,7 @@ public class TransportReceiveHandler extends AbstractReceiveHandler implements
 					glober2.start();
 
 					proc.waitFor();
-					System.out.println("³¤Ê±¼äµÈ´ı´«ÊäÍê³É22222");
+					System.out.println("é•¿æ—¶é—´ç­‰å¾…ä¼ è¾“å®Œæˆ22222");
 				} catch (Exception e) {
 					e.printStackTrace();
 					TransportReceiveHandler.this.node
@@ -47,7 +47,7 @@ public class TransportReceiveHandler extends AbstractReceiveHandler implements
 		});
 		backend.setDaemon(true);
 		backend.start();
-		// ÕâÀïÏÈ·¢³É¹¦ÇëÇó´ú±íµÚÒ»½×¶Î³É¹¦
+		// è¿™é‡Œå…ˆå‘æˆåŠŸè¯·æ±‚ä»£è¡¨ç¬¬ä¸€é˜¶æ®µæˆåŠŸ
 		try {
 			Thread.currentThread().sleep(100);
 		} catch (InterruptedException e) {

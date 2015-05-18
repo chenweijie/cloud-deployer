@@ -16,14 +16,13 @@ public class DeployCommand extends PlainCommand {
 
 	@Override
 	public String toString() {
-		// 拼接到后面 this.getDoingIPs();
-		return super.getKey() + "," + this.getAppId() + ",[\"随便写的IPs\"]";
+		return super.getKey() + "," + this.getAppId() + ",[\"闅忎究鍐欑殑IPs\"]";
 	}
 
 	@Override
 	public String[] getDoingIPs() {
-		// 通过服务获取到appId 注册的对应服务器IP列表 作为内容发布出去
-		String[] ips = new String[]{"随便写的IPs"};
+		// 閫氳繃鏈嶅姟鑾峰彇鍒癮ppId 娉ㄥ唽鐨勫搴旀湇鍔″櫒IP鍒楄〃 浣滀负鍐呭鍙戝竷鍑哄幓
+		String[] ips = new String[]{"闅忎究鍐欑殑IPs"};
 		return ips;
 	}
 

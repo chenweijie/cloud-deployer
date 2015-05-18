@@ -12,14 +12,14 @@ import com.wondersgroup.cloud.deployment.TestReceiveHandler;
 import com.wondersgroup.cloud.deployment.TransportReceiveHandler;
 
 /**
- * ¹¤×÷¶Ë 1. ÉêÇë¼ÓÃË½Úµã ¿ÉÒÔ¿ªÊ¼¹¤×÷ 2. ÒÑ¾­¼ÓÃË½Úµã£¨¶ÀÕ¼·½Ê½£¬²»»áÍ¬Ê±·şÎñ¶à¸ödeployer£©
+ * å·¥ä½œç«¯ 1. ç”³è¯·åŠ ç›ŸèŠ‚ç‚¹ å¯ä»¥å¼€å§‹å·¥ä½œ 2. å·²ç»åŠ ç›ŸèŠ‚ç‚¹ï¼ˆç‹¬å æ–¹å¼ï¼Œä¸ä¼šåŒæ—¶æœåŠ¡å¤šä¸ªdeployerï¼‰
  */
 public class Deployee {
 
 	public static void main(String[] args) throws SocketException {
-		// ¶ÔÍâ·ÃÎÊÈë¿Ú
+		// å¯¹å¤–è®¿é—®å…¥å£
 		Node node = new Node();
-		// ´ú±íÃ¿¸ö½×¶ÎµÄ¿ªÊ¼
+		// ä»£è¡¨æ¯ä¸ªé˜¶æ®µçš„å¼€å§‹
 		node.registerReceiveHandler(Node.CLOSE, new CloseReceiveHandler(node));
 		node.registerReceiveHandler(Node.DELETE, new DeleteReceiveHandler(node));
 		node.registerReceiveHandler(Node.TRANSPORT, new TransportReceiveHandler(node));

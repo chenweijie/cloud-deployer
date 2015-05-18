@@ -19,7 +19,7 @@ public final class ApplicatioinServiceImpl implements ApplicationService,
 
 	@Override
 	public boolean deploy(String appId) {
-		// TODO: Ğ£ÑéÊÇ·ñworker·şÎñÆ÷¶¼ÒÑ¾­¾ÍÎ»
+		// TODO: æ ¡éªŒæ˜¯å¦workeræœåŠ¡å™¨éƒ½å·²ç»å°±ä½
 		// node.validate
 
 		ICommand command = new DeployCommand(appId, Node.DEPLOY);
@@ -28,9 +28,9 @@ public final class ApplicatioinServiceImpl implements ApplicationService,
 	}
 
 	private void init() {
-		// ¶ÔÍâ·ÃÎÊÈë¿Ú
+		// å¯¹å¤–è®¿é—®å…¥å£
 		this.node = new Node();
-		// ×¢²áÏûÏ¢½ÓÊÜµÄ´¦ÀíÊµÏÖ 1£¬½ÓÊÜ¼ÓÃËÇëÇó£¬2£¬µÃµ½¸÷ÖÖÖ¸Áî·´À¡ĞÅÏ¢
+		// æ³¨å†Œæ¶ˆæ¯æ¥å—çš„å¤„ç†å®ç° 1ï¼Œæ¥å—åŠ ç›Ÿè¯·æ±‚ï¼Œ2ï¼Œå¾—åˆ°å„ç§æŒ‡ä»¤åé¦ˆä¿¡æ¯
 		// node.registerReceiveHandler(node.JOIN, new JoinReceiveHandler(node));
 		// node.registerReceiveHandler(node.CLOSE | node.SUCCESS,
 		// new CloseOKReceiveHandler(node));
@@ -66,14 +66,14 @@ public final class ApplicatioinServiceImpl implements ApplicationService,
 
 	@Override
 	public void fireNodeEvent(String msg, String srcIp, Object... params) {
-		// Ê×ÏÈ statis ·şÎñ¶¼ÊÇclose×´Ì¬£¬È»ºóºóÃæÈ«²¿½ÓÊÜ¸÷¸ö·şÎñÆ÷·¢ËÍµÄ×´Ì¬Êı¾İ
-		// statisticÄÇÀïÊÇ×ö×´Ì¬Í³¼Æ£¬¶øÕâÀïÊÇ×ö×´Ì¬¸üÌæ
-		// Ã¿´Î·şÎñ·¢À´ĞÅÏ¢±ÈÈç serverA 0close , serverB 1close £¬ÕâÀï¶¼»áÈ¥µ½statisticÀïÃæ×ö²éÑ¯
-		// Ö»ÓĞ×´Ì¬È«²¿ÕıÈ· ºóÃæ²ÅÄÜ¼ÌĞø×öÏÂÈ¥£¬Ò²¾ÍÊÇËµÕâÀï
-		// £¬»áÇ£Éæµ½ÏÈºóÎÊÌâ£º Èç¹ûÊÇserviceÏÈ½Óµ½ÇëÇó£¬¶østatisticºó½Óµ½ÇëÇó£¬ÄÇÃ´service
-		// Ö»²éÒ»±é£¬¾Í»áÒÅÂ©·şÎñÆ÷×îĞÂ×´Ì¬ĞÅÏ¢¡£
-		// ËùÒÔÎªÁË½â¾öÕâÖÖÇé¿ö£¬Ö»ÓĞÊÇ»îµÃstatitic·şÎñÆ÷ÁĞ±í£¬¶ø×´Ì¬ĞÅÏ¢¸ù¾İfireNodeEvent´«¹ıÀ´µÄ×Ô¼º×ö½âÎöÎª×¼--->ÄÇµÈÓÚÔÚÕâÀï»¹ĞèÒªÎ¬»¤Ò»ÕÅ×´Ì¬±í¡£¡£¡£¡£
-		// »¹ÓĞÖÖ°ì·¨¾ÍÊÇÓÉstatistic ·şÎñÆ÷¸üĞÂÍê×´Ì¬ºó£¬·¢ÆğĞÂµÄÊÂ¼ş£¬È»ºóÔÙÕâÀï²¶»ñµ½ ¼ÌĞøÖ´ĞĞ
+		// é¦–å…ˆ statis æœåŠ¡éƒ½æ˜¯closeçŠ¶æ€ï¼Œç„¶ååé¢å…¨éƒ¨æ¥å—å„ä¸ªæœåŠ¡å™¨å‘é€çš„çŠ¶æ€æ•°æ®
+		// statisticé‚£é‡Œæ˜¯åšçŠ¶æ€ç»Ÿè®¡ï¼Œè€Œè¿™é‡Œæ˜¯åšçŠ¶æ€æ›´æ›¿
+		// æ¯æ¬¡æœåŠ¡å‘æ¥ä¿¡æ¯æ¯”å¦‚ serverA 0close , serverB 1close ï¼Œè¿™é‡Œéƒ½ä¼šå»åˆ°statisticé‡Œé¢åšæŸ¥è¯¢
+		// åªæœ‰çŠ¶æ€å…¨éƒ¨æ­£ç¡® åé¢æ‰èƒ½ç»§ç»­åšä¸‹å»ï¼Œä¹Ÿå°±æ˜¯è¯´è¿™é‡Œ
+		// ï¼Œä¼šç‰µæ¶‰åˆ°å…ˆåé—®é¢˜ï¼š å¦‚æœæ˜¯serviceå…ˆæ¥åˆ°è¯·æ±‚ï¼Œè€Œstatisticåæ¥åˆ°è¯·æ±‚ï¼Œé‚£ä¹ˆservice
+		// åªæŸ¥ä¸€éï¼Œå°±ä¼šé—æ¼æœåŠ¡å™¨æœ€æ–°çŠ¶æ€ä¿¡æ¯ã€‚
+		// æ‰€ä»¥ä¸ºäº†è§£å†³è¿™ç§æƒ…å†µï¼Œåªæœ‰æ˜¯æ´»å¾—statiticæœåŠ¡å™¨åˆ—è¡¨ï¼Œè€ŒçŠ¶æ€ä¿¡æ¯æ ¹æ®fireNodeEventä¼ è¿‡æ¥çš„è‡ªå·±åšè§£æä¸ºå‡†--->é‚£ç­‰äºåœ¨è¿™é‡Œè¿˜éœ€è¦ç»´æŠ¤ä¸€å¼ çŠ¶æ€è¡¨ã€‚ã€‚ã€‚ã€‚
+		// è¿˜æœ‰ç§åŠæ³•å°±æ˜¯ç”±statistic æœåŠ¡å™¨æ›´æ–°å®ŒçŠ¶æ€åï¼Œå‘èµ·æ–°çš„äº‹ä»¶ï¼Œç„¶åå†è¿™é‡Œæ•è·åˆ° ç»§ç»­æ‰§è¡Œ
 		if (srcIp == node.getIp()
 				&& (Node.runStateOf(node.selectKey(msg)) == Node.NEXT)) {
 			int currentState = Integer.valueOf(String.valueOf(params[0]));

@@ -17,7 +17,7 @@ import com.wondersgroup.cloud.deployment.utils.URL;
 
 public class Node {
 
-	private String ip;// Ê¹ÓÃ°ó¶¨µÄÍø¿¨¶ÔÓ¦IP Ìæ´ú
+	private String ip;// ä½¿ç”¨ç»‘å®šçš„ç½‘å¡å¯¹åº”IP æ›¿ä»£
 	private NetworkCommander commander;
 	private Map<Integer, IReceiveHandler> handlerMap = new HashMap<Integer, IReceiveHandler>(
 			4);
@@ -37,7 +37,7 @@ public class Node {
 			}
 			commander = new MutilGroupNetworkCommander(url, this);
 		} catch (IOException ex) {
-			throw new DeployException("³õÊ¼»¯Òì³£:" + ex.getMessage(), ex);
+			throw new DeployException("åˆå§‹åŒ–å¼‚å¸¸:" + ex.getMessage(), ex);
 		}
 	}
 
@@ -49,14 +49,14 @@ public class Node {
 			if (networkInterface.equals(ni.getName())) {
 				Enumeration<InetAddress> ips = ni.getInetAddresses();
 				while (ips.hasMoreElements()) {
-					// Ö±½Ó·µ»Ø°ó¶¨µÄµÚÒ»¸öIP
+					// ç›´æ¥è¿”å›ç»‘å®šçš„ç¬¬ä¸€ä¸ªIP
 					String bindIp = ips.nextElement().getHostAddress();
 					System.out.println("bindIp:::" + bindIp);
 					return bindIp;
 				}
 			}
 		}
-		throw new DeployException("Ã»ÓĞÆ¥ÅäµÄIPµØÖ·");
+		throw new DeployException("æ²¡æœ‰åŒ¹é…çš„IPåœ°å€");
 	}
 
 	public void run() {
@@ -66,7 +66,7 @@ public class Node {
 			public void run() {
 				byte[] buf = new byte[1024];
 				DatagramPacket recv = new DatagramPacket(buf, buf.length);
-				// ²»Í£½ÓÊÜ Íâ²¿´«À´µÄÏûÏ¢£¬½»¸ø×¢²áµÄ´¦ÀíÆ÷´¦Àí
+				// ä¸åœæ¥å— å¤–éƒ¨ä¼ æ¥çš„æ¶ˆæ¯ï¼Œäº¤ç»™æ³¨å†Œçš„å¤„ç†å™¨å¤„ç†
 				while (true) {
 					commander.acceptMsg(recv);
 				}
@@ -79,13 +79,13 @@ public class Node {
 	}
 
 	public void executeCommand(ICommand command) {
-		// 2 .Èç¹ûÃ»ÓĞ×¢²ájoinµÄ´¦ÀíÆ÷ ¾ÍÈÏÎªÊÇ ¹¤×÷»ú ¿ÉÒÔ¼ÌĞø
+		// 2 .å¦‚æœæ²¡æœ‰æ³¨å†Œjoinçš„å¤„ç†å™¨ å°±è®¤ä¸ºæ˜¯ å·¥ä½œæœº å¯ä»¥ç»§ç»­
 		// this.workerIPs.size() == 0 &&
 		if (handlerMap.containsKey(Node.JOIN)) {
 			return;
 		}
-		// Èç¹ûcommand keyÖµµÈÓÚclose ËµÃ÷ÊÇ¿ªÊ¼ÔËĞĞÁË
-		// applicationService ·¢ÆğµÄµÚÒ»¸öÆô¶¯ÃüÁîÏûÏ¢
+		// å¦‚æœcommand keyå€¼ç­‰äºclose è¯´æ˜æ˜¯å¼€å§‹è¿è¡Œäº†
+		// applicationService å‘èµ·çš„ç¬¬ä¸€ä¸ªå¯åŠ¨å‘½ä»¤æ¶ˆæ¯
 		if (runStateOf(command.getKey()) == Node.DEPLOY) {
 			this.fireNodeEvent(command.toString(), this.ip, command);
 			
@@ -103,7 +103,7 @@ public class Node {
 		handlerMap.put(key, receiveHandler);
 	}
 
-	// »»³É2½øÖÆ Ê£ÏÂ4Î»×ö×´Ì¬¸üÌæÊ¹ÓÃ ÉÏÃæ32-4È«²¿×ö×´Ì¬Ãû³Æ£»
+	// æ¢æˆ2è¿›åˆ¶ å‰©ä¸‹4ä½åšçŠ¶æ€æ›´æ›¿ä½¿ç”¨ ä¸Šé¢32-4å…¨éƒ¨åšçŠ¶æ€åç§°ï¼›
 	public static final int STATUS_BITS = Integer.SIZE - 4;
 	public static final int STATUS_CHANGE = (1 << STATUS_BITS) - 1;
 
@@ -141,7 +141,7 @@ public class Node {
 
 	public void handleReceive(String msg, InetSocketAddress socketAddress,
 			String srcIp) {
-		// Èç¹ûÔ¶¶ËIPÓë±¾ÉíIPÊÇÒ»ÑùµÄ ÄÇ¾Í²»×ö´¦Àí
+		// å¦‚æœè¿œç«¯IPä¸æœ¬èº«IPæ˜¯ä¸€æ ·çš„ é‚£å°±ä¸åšå¤„ç†
 		if (srcIp.equals(this.ip)) {
 			return;
 		}
