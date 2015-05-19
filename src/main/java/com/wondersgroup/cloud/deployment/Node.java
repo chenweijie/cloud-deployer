@@ -23,8 +23,8 @@ public class Node {
 			4);
 
 	public Node() {
-		Properties props = new Properties();
 		try {
+			Properties props = new Properties();
 			props.load(Thread.currentThread().getContextClassLoader()
 					.getResourceAsStream("node.properties"));
 			URL url = URL.valueOf(props.getProperty("register.url"));
@@ -88,8 +88,7 @@ public class Node {
 		// applicationService 发起的第一个启动命令消息
 		if (runStateOf(command.getKey()) == Node.DEPLOY) {
 			this.fireNodeEvent(command.toString(), this.ip, command);
-			
-			
+
 			ICommand close_command = new DeployCommand(command.getAppId(),
 					Node.CLOSE);
 			this.fireNodeEvent(close_command.toString(), this.ip, close_command);
@@ -107,14 +106,15 @@ public class Node {
 	public static final int STATUS_BITS = Integer.SIZE - 4;
 	public static final int STATUS_CHANGE = (1 << STATUS_BITS) - 1;
 
-	public static final int JOIN = 0 << STATUS_BITS;
-	public static final int DEPLOY = 1 << STATUS_BITS;
-	public static final int NEXT = 2 << STATUS_BITS;
-	public static final int CLOSE = 3 << STATUS_BITS;
-	public static final int DELETE = 4 << STATUS_BITS;
-	public static final int TRANSPORT = 5 << STATUS_BITS;
-	public static final int START = 6 << STATUS_BITS;
-	public static final int TEST = 7 << STATUS_BITS;
+	public static final int INIT = 0 << STATUS_BITS;
+	public static final int JOIN = 1 << STATUS_BITS;
+	public static final int DEPLOY = 2 << STATUS_BITS;
+	public static final int NEXT = 3 << STATUS_BITS;
+	public static final int CLOSE = 4 << STATUS_BITS;
+	public static final int DELETE = 5 << STATUS_BITS;
+	public static final int TRANSPORT = 6 << STATUS_BITS;
+	public static final int START = 7 << STATUS_BITS;
+	public static final int TEST = 8 << STATUS_BITS;
 
 	public static final int SUCCESS = 1;
 	public static final int FAILURE = 2;
@@ -152,7 +152,7 @@ public class Node {
 		this.fireNodeEvent(msg, srcIp, _key);
 	}
 
-	protected void fireNodeEvent(String msg, String srcIp, Object... params) {
+	public void fireNodeEvent(String msg, String srcIp, Object... params) {
 		for (INodeListener listener : nodeListeners) {
 			listener.fireNodeEvent(msg, srcIp, params);
 		}

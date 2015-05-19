@@ -71,7 +71,7 @@ public class ApplicationStatisticListener implements INodeListener,
 			this.appStatus.put(appId, new HashMap<String, Integer>(2));
 		}
 		for (String ip : ips) {
-			Map serverStatus = this.appStatus.get(appId);
+			Map<String, Integer> serverStatus = this.appStatus.get(appId);
 			serverStatus.put(ip, status);
 		}
 

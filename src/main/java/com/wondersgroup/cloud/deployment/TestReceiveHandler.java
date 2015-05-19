@@ -1,6 +1,5 @@
 package com.wondersgroup.cloud.deployment;
 
-import java.net.InetSocketAddress;
 
 public class TestReceiveHandler extends AbstractReceiveHandler implements
 		IReceiveHandler {

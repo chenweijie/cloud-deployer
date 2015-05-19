@@ -5,6 +5,7 @@ import com.wondersgroup.cloud.deployment.DeployCommand;
 import com.wondersgroup.cloud.deployment.ICommand;
 import com.wondersgroup.cloud.deployment.INodeListener;
 import com.wondersgroup.cloud.deployment.Node;
+import com.wondersgroup.cloud.deployment.file.FileServer;
 
 public final class ApplicatioinServiceImpl implements ApplicationService,
 		INodeListener {
@@ -56,7 +57,11 @@ public final class ApplicatioinServiceImpl implements ApplicationService,
 		appStatusService = new ApplicationStatisticListener(node);
 		node.registerNodeListener((INodeListener) appStatusService);
 		node.registerNodeListener(this);
+		node.registerNodeListener(new FileServer(node));
 		node.run();
+
+		ICommand init_command = new DeployCommand("", Node.INIT);
+		node.fireNodeEvent(init_command.toString(), node.getIp(), init_command);
 	}
 
 	@Override

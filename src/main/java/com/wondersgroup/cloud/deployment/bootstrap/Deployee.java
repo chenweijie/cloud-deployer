@@ -9,7 +9,7 @@ import com.wondersgroup.cloud.deployment.Node;
 import com.wondersgroup.cloud.deployment.PlainCommand;
 import com.wondersgroup.cloud.deployment.StartReceiveHandler;
 import com.wondersgroup.cloud.deployment.TestReceiveHandler;
-import com.wondersgroup.cloud.deployment.TransportReceiveHandler;
+import com.wondersgroup.cloud.deployment.file.TransportReceiveHandler;
 
 /**
  * 工作端 1. 申请加盟节点 可以开始工作 2. 已经加盟节点（独占方式，不会同时服务多个deployer）
