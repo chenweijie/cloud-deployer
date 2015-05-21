@@ -4,6 +4,10 @@ public class DeployCommand extends PlainCommand {
 
 	private String appId;
 
+	public DeployCommand(int key) {
+		this("", key);
+	}
+	
 	// close, delete, transport, start, test
 	public DeployCommand(String appId, int key) {
 		super(key);

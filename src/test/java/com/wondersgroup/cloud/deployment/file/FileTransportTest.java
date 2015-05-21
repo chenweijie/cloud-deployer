@@ -73,26 +73,6 @@ public class FileTransportTest {
 				httpClient.close();
 			}
 		}
-
-		
-//		try {
-//			Thread.sleep(3000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-//				HttpMethod.GET, "aa.zip");
-//		future.getChannel().write(request);
-//
-//		// Wait until the connection is closed or the connection attempt fails.
-//
-//		// 好像关闭不是这样的吧~~
-//		// httpClient.close();
-//		// // Wait until the connection is closed or the connection attempt
-//		// fails.
-//		future.getChannel().getCloseFuture().awaitUninterruptibly();
-//		// // Shut down thread pools to exit.
-//		// bootstrap.releaseExternalResources();
 	}
 
 }

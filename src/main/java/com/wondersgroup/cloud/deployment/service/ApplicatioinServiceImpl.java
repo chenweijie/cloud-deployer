@@ -1,10 +1,12 @@
 package com.wondersgroup.cloud.deployment.service;
 
-import com.wondersgroup.cloud.deployment.ApplicationStatisticListener;
+import java.util.Date;
+
 import com.wondersgroup.cloud.deployment.DeployCommand;
 import com.wondersgroup.cloud.deployment.ICommand;
 import com.wondersgroup.cloud.deployment.INodeListener;
 import com.wondersgroup.cloud.deployment.Node;
+import com.wondersgroup.cloud.deployment.ScheduleDeployCommand;
 import com.wondersgroup.cloud.deployment.file.FileServer;
 
 public final class ApplicatioinServiceImpl implements ApplicationService,
@@ -21,46 +23,33 @@ public final class ApplicatioinServiceImpl implements ApplicationService,
 	@Override
 	public boolean deploy(String appId) {
 		// TODO: 校验是否worker服务器都已经就位
-		// node.validate
-
+		// validateApp
 		ICommand command = new DeployCommand(appId, Node.DEPLOY);
 		node.executeCommand(command);
+		return true;
+	}
+
+	@Override
+	public boolean deploy(String appId, Date startDate) {
+		// TODO: 校验是否worker服务器都已经就位
+		// validateApp
+		ICommand command = new ScheduleDeployCommand(appId, Node.DEPLOY_SCHEDULE, startDate);
+		// node.executeCommand(command);
+		node.fireNodeEvent(command.toString(), node.getIp(), command);
 		return true;
 	}
 
 	private void init() {
 		// 对外访问入口
 		this.node = new Node();
-		// 注册消息接受的处理实现 1，接受加盟请求，2，得到各种指令反馈信息
-		// node.registerReceiveHandler(node.JOIN, new JoinReceiveHandler(node));
-		// node.registerReceiveHandler(node.CLOSE | node.SUCCESS,
-		// new CloseOKReceiveHandler(node));
-		// node.registerReceiveHandler(node.CLOSE | node.FAILURE,
-		// new CloseFailureReceiveHandler(node));
-		// node.registerReceiveHandler(node.DELETE | node.SUCCESS,
-		// new DeleteOKReceiveHandler(node));
-		// node.registerReceiveHandler(node.DELETE | node.FAILURE,
-		// new DeleteFailureReceiveHandler(node));
-		// node.registerReceiveHandler(node.TRANSPORT | node.SUCCESS,
-		// new TransportOKReceiveHandler(node));
-		// node.registerReceiveHandler(node.TRANSPORT | node.FAILURE,
-		// new TransportFailureReceiveHandler(node));
-		// node.registerReceiveHandler(node.START | node.SUCCESS,
-		// new StartOKReceiveHandler(node));
-		// node.registerReceiveHandler(node.START | node.FAILURE,
-		// new StartFailureReceiveHandler(node));
-		// node.registerReceiveHandler(node.TEST | node.SUCCESS,
-		// new TestOKReceiveHandler(node));
-		// node.registerReceiveHandler(node.TEST | node.FAILURE,
-		// new TestFailureReceiveHandler(node));
-
 		appStatusService = new ApplicationStatisticListener(node);
 		node.registerNodeListener((INodeListener) appStatusService);
 		node.registerNodeListener(this);
 		node.registerNodeListener(new FileServer(node));
+		node.registerNodeListener(new BackendScheduler(node));
 		node.run();
 
-		ICommand init_command = new DeployCommand("", Node.INIT);
+		ICommand init_command = new DeployCommand(Node.INIT);
 		node.fireNodeEvent(init_command.toString(), node.getIp(), init_command);
 	}
 
@@ -80,6 +69,17 @@ public final class ApplicatioinServiceImpl implements ApplicationService,
 		// 所以为了解决这种情况，只有是活得statitic服务器列表，而状态信息根据fireNodeEvent传过来的自己做解析为准--->那等于在这里还需要维护一张状态表。。。。
 		// 还有种办法就是由statistic 服务器更新完状态后，发起新的事件，然后再这里捕获到 继续执行
 		if (srcIp == node.getIp()
+				&& (Node.runStateOf(node.selectKey(msg)) == Node.DEPLOY)) {
+			int currentState = Node.DEPLOY;
+			String content = msg.substring(msg.indexOf(","),
+					msg.lastIndexOf(",") + 1);
+			String[] args = content.split(",");
+			String appId = args[0];
+			int nextState = currentState + 1;
+			ICommand command = new DeployCommand(appId, nextState);
+			node.executeCommand(command);
+		}
+		if (srcIp == node.getIp()
 				&& (Node.runStateOf(node.selectKey(msg)) == Node.NEXT)) {
 			int currentState = Integer.valueOf(String.valueOf(params[0]));
 			if (currentState < Node.TEST) {
@@ -94,4 +94,5 @@ public final class ApplicatioinServiceImpl implements ApplicationService,
 			}
 		}
 	}
+
 }

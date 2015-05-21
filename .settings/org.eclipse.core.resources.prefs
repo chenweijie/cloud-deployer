@@ -1,5 +1,4 @@
 eclipse.preferences.version=1
-encoding//src/main/java/com/wondersgroup/cloud/deployment/ApplicationStatisticListener.java=UTF-8
 encoding//src/main/java/com/wondersgroup/cloud/deployment/CloseReceiveHandler.java=UTF-8
 encoding//src/main/java/com/wondersgroup/cloud/deployment/DeployCommand.java=UTF-8
 encoding//src/main/java/com/wondersgroup/cloud/deployment/MutilGroupNetworkCommander.java=UTF-8
@@ -10,3 +9,5 @@ encoding//src/main/java/com/wondersgroup/cloud/deployment/bootstrap/Deployee.jav
 encoding//src/main/java/com/wondersgroup/cloud/deployment/bootstrap/Deployer.java=UTF-8
 encoding//src/main/java/com/wondersgroup/cloud/deployment/file/TransportReceiveHandler.java=UTF-8
 encoding//src/main/java/com/wondersgroup/cloud/deployment/service/ApplicatioinServiceImpl.java=UTF-8
+encoding//src/main/java/com/wondersgroup/cloud/deployment/service/ApplicationStatisticListener.java=UTF-8
+encoding/<project>=UTF-8
