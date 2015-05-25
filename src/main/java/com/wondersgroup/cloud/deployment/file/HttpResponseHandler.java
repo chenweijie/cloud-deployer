@@ -3,6 +3,8 @@ package com.wondersgroup.cloud.deployment.file;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipelineCoverage;
@@ -18,20 +20,27 @@ import com.wondersgroup.cloud.deployment.Node;
 
 @ChannelPipelineCoverage("one")
 public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
+	private Log logger = LogFactory.getLog(HttpResponseHandler.class);
 	private volatile boolean readingChunks;
 	private File downloadFile;
 	private FileOutputStream fOutputStream = null;
 	private Node node;
 	private String appId;
+	private String ipList;
+	private String srcPath;
 
-	public HttpResponseHandler(Node node, String appId) {
+	public HttpResponseHandler(Node node, String appId, String srcPath,
+			String ipList) {
 		this.node = node;
 		this.appId = appId;
+		this.srcPath = srcPath;
+		this.ipList = ipList;
 	}
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
+		logger.info("receive msg...");
 		if (e.getMessage() instanceof HttpResponse) {
 			DefaultHttpResponse httpResponse = (DefaultHttpResponse) e
 					.getMessage();
@@ -39,7 +48,7 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
 					.substring(20);
 			// downloadFile = new File(System.getProperty("user.dir")+
 			// File.separator + "download" + fileName);
-			downloadFile = new File("E:\\tmp" + File.separator + "download"
+			downloadFile = new File("/root/apache-tomcat-6.0.39/webapps/"
 					+ fileName);
 			readingChunks = httpResponse.isChunked();
 		} else {
@@ -58,7 +67,7 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
 				readingChunks = false;
 				if (node != null) {
 					node.executeCommand(new DeployCommand(appId, Node.TRANSPORT
-							| Node.SUCCESS));
+							| Node.SUCCESS, this.srcPath, this.ipList));
 				}
 			}
 			fOutputStream.flush();
@@ -74,7 +83,7 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
 		System.out.println(e.getCause());
 		if (node != null) {
 			node.executeCommand(new DeployCommand(appId, Node.TRANSPORT
-					| Node.FAILURE));
+					| Node.FAILURE, this.srcPath, this.ipList));
 		}
 	}
 }

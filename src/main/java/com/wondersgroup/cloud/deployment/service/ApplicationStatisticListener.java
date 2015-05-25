@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.wondersgroup.cloud.deployment.DeployCommand;
 import com.wondersgroup.cloud.deployment.ICommand;
 import com.wondersgroup.cloud.deployment.INodeListener;
@@ -11,10 +14,12 @@ import com.wondersgroup.cloud.deployment.Node;
 
 /**
  * 记录状态如下 app1 {serverA: 1close, serverB: 1close, serverC: 0close} app2
- * {serverD: 1start, serverE: 1start, serverF: 0start} 
+ * {serverD: 1start, serverE: 1start, serverF: 0start}
  */
 public class ApplicationStatisticListener implements INodeListener,
 		IAppStatisticService {
+
+	private Log logger = LogFactory.getLog(ApplicationStatisticListener.class);
 
 	private Node node;
 
@@ -52,24 +57,33 @@ public class ApplicationStatisticListener implements INodeListener,
 	@Override
 	public void fireNodeEvent(String msg, String srcIp, Object... params) {
 		// 初始化那一下
+		logger.info("fire node msg: "
+				+ Node.debugState(Node.runStateOf(node.selectKey(msg))));
+
 		if (Node.runStateOf(node.selectKey(msg)) == Node.DEPLOY) {
 			ICommand command = (ICommand) params[0];
 			String appId = command.getAppId();
 			String[] ips = command.getDoingIPs();
-			this.updateStatus(appId, ips, Node.DEPLOY);
-		} else if (node.getIp() != srcIp) {
+			this.updateStatus(appId, ips, Node.DEPLOY, null, null);
+		} else if (node.getIp() != srcIp
+				&& Node.runStateOf(node.selectKey(msg)) != Node.JOIN) {
+			// 加盟节点不做业务信息记录
 			// 确保不是状态更替 其它情况 都是单服务器直接反馈结果信息
 			int key = node.selectKey(msg);
 			int status = key;// Node.runStateOf(key);
-			String content = msg.substring(msg.indexOf(","),
-					msg.lastIndexOf(",") + 1);
-			String[] args = content.split(",");
-			String appId = args[0];
-			this.updateStatus(appId, new String[] { srcIp }, status);
+
+			String[] datas = DeployCommand.toData(msg);
+			String appId = datas[0];
+			String srcPath = datas[1];
+			String ipList = datas[2];
+
+			this.updateStatus(appId, new String[] { srcIp }, status, srcPath,
+					ipList);
 		}
 	}
 
-	private void updateStatus(String appId, String[] ips, int status) {
+	private void updateStatus(String appId, String[] ips, int status,
+			String srcPath, String ipList) {
 		if (!this.appStatus.containsKey(appId)) {
 			this.appStatus.put(appId, new HashMap<String, Integer>(2));
 		}
@@ -80,12 +94,14 @@ public class ApplicationStatisticListener implements INodeListener,
 
 		if (ips.length == 1 && status != Node.DEPLOY) {
 			// 检查每个服务器状态看是否可以触发新的状态了
+			logger.info("judge next state start=====================");
 			Iterator<Integer> iter = this.appStatus.get(appId).values()
 					.iterator();
 			int finalStatus = Node.SUCCESS;
 			int state = Node.CLOSE;
 			while (iter.hasNext()) {
 				int _status = iter.next();
+				logger.info("judge state_" + Node.debugState(_status));
 				if (status != Node.DEPLOY) {
 					int realOne = Node.stateDetailOf(_status);
 					finalStatus = finalStatus & realOne;
@@ -95,16 +111,18 @@ public class ApplicationStatisticListener implements INodeListener,
 					break;
 				}
 			}
+			logger.info("judge final state_" + finalStatus);
 			if (finalStatus == Node.SUCCESS) {
 				// 进入下一个阶段 发起这个阶段完结的消息
-				ICommand close_command = new DeployCommand(appId, Node.NEXT);
+				logger.info("fire next state  success");
+				ICommand close_command = new DeployCommand(appId, Node.NEXT,
+						srcPath, ipList);
 				node.fireNodeEvent(close_command.toString(), node.getIp(),
 						state);
 				// fireEvent OK APP
 			} else {
 				// fireEvent Failure APP
-				System.out.println(appId + "---" + state
-						+ "--项目现在还无法完全判定为阶段性失败");
+				logger.info("nothing happened fire next state failure");
 			}
 		}
 	}

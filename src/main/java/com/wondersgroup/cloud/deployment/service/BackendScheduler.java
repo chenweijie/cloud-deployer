@@ -17,6 +17,7 @@ import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
+import com.wondersgroup.cloud.deployment.DeployCommand;
 import com.wondersgroup.cloud.deployment.DeployException;
 import com.wondersgroup.cloud.deployment.INodeListener;
 import com.wondersgroup.cloud.deployment.Node;
@@ -66,6 +67,9 @@ public class BackendScheduler implements INodeListener {
 			ScheduleDeployCommand command = (ScheduleDeployCommand) params[0];
 			String appId = command.getAppId();
 			Date startDate = command.getStartDate();
+			String[] datas = DeployCommand.toData(msg);
+			String srcPath = datas[1];
+			String ipList = datas[2];
 			try {
 				scheduler.deleteJob(new JobKey("job-" + appId, "app-group"));
 				
@@ -75,6 +79,8 @@ public class BackendScheduler implements INodeListener {
 						.storeDurably(true)
 						.build();
 				job.getJobDataMap().put("appId", appId);
+				job.getJobDataMap().put("srcPath", srcPath);
+				job.getJobDataMap().put("ipList", ipList);
 				String cronExpress = this.parse(startDate);
 				Trigger trigger = newTrigger()
 						.withIdentity("trigger-" + appId, "app-group")

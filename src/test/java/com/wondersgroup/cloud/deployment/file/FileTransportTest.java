@@ -60,7 +60,8 @@ public class FileTransportTest {
 
 	@Test
 	public void download() {
-		HttpClient httpClient = new HttpClient(null, "app1", "127.0.0.1", 8085);
+		HttpClient httpClient = new HttpClient(null, "app1", "127.0.0.1", 8085,
+				"xxxx", "bbbb");
 		ChannelFuture future = httpClient.connect();
 		if (httpClient.checkFutureState(future)) {
 			System.out.println("connect ok");

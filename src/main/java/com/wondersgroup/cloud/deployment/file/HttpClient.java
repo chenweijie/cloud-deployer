@@ -21,19 +21,23 @@ public class HttpClient {
 	private int port = 8080;
 	private Node node;
 	private String appId;
+	private String srcPath;
+	private String ipList;
 
-	public HttpClient(Node node, String appId, String srcIp, int port) {
+	public HttpClient(Node node, String appId, String srcIp, int port, String srcPath, String ipList) {
 		this.node = node;
 		this.appId = appId;
 		this.host = srcIp;
 		this.port = port;
+		this.srcPath = srcPath;
+	    this.ipList = ipList;
 	}
 
 	public ChannelFuture connect() {
 		bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
-		HttpResponseHandler clientHandler = new HttpResponseHandler(node, this.appId);
+		HttpResponseHandler clientHandler = new HttpResponseHandler(node, this.appId, this.srcPath, this.ipList);
 		bootstrap.setPipelineFactory(new HttpClientPipelineFactory(
 				clientHandler));
 

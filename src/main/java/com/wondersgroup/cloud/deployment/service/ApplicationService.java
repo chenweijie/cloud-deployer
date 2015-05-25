@@ -1,12 +1,12 @@
 package com.wondersgroup.cloud.deployment.service;
 
-import java.util.Date;
+import java.util.Map;
 
 public interface ApplicationService {
 
-	boolean deploy(String appId);
+	boolean deploy(String appId, Map extraParams);
 
-	boolean deploy(String appId, Date startDate);
+	boolean sceduleDeploy(String appId, Map extraParams);
 
 	int getAppStatus(String appId);
 

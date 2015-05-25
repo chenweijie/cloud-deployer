@@ -7,7 +7,8 @@ encoding//src/main/java/com/wondersgroup/cloud/deployment/StartReceiveHandler.ja
 encoding//src/main/java/com/wondersgroup/cloud/deployment/TestReceiveHandler.java=UTF-8
 encoding//src/main/java/com/wondersgroup/cloud/deployment/bootstrap/Deployee.java=UTF-8
 encoding//src/main/java/com/wondersgroup/cloud/deployment/bootstrap/Deployer.java=UTF-8
+encoding//src/main/java/com/wondersgroup/cloud/deployment/file/FileServerHandler.java=UTF-8
 encoding//src/main/java/com/wondersgroup/cloud/deployment/file/TransportReceiveHandler.java=UTF-8
-encoding//src/main/java/com/wondersgroup/cloud/deployment/service/ApplicatioinServiceImpl.java=UTF-8
+encoding//src/main/java/com/wondersgroup/cloud/deployment/service/ApplicationServiceImpl.java=UTF-8
 encoding//src/main/java/com/wondersgroup/cloud/deployment/service/ApplicationStatisticListener.java=UTF-8
 encoding/<project>=UTF-8

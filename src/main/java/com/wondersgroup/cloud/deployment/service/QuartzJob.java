@@ -16,8 +16,13 @@ public class QuartzJob implements Job {
 		try {
 			String appId = String.valueOf(context.getJobDetail()
 					.getJobDataMap().get("appId"));
+			String srcPath = String.valueOf(context.getJobDetail()
+					.getJobDataMap().get("srcPath"));
+			String ipList = String.valueOf(context.getJobDetail()
+					.getJobDataMap().get("ipList"));
 			Node node = (Node) (context.getScheduler().getContext().get("node"));
-			ICommand command = new DeployCommand(appId, Node.DEPLOY);
+			ICommand command = new DeployCommand(appId, Node.DEPLOY, srcPath,
+					ipList);
 			node.executeCommand(command);
 		} catch (SchedulerException e) {
 			// TODO Auto-generated catch block

@@ -28,6 +28,8 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -48,8 +50,10 @@ import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedFile;
 import org.jboss.netty.util.CharsetUtil;
 
-public class FileServerHandler extends SimpleChannelUpstreamHandler {
+import com.wondersgroup.cloud.deployment.Node;
 
+public class FileServerHandler extends SimpleChannelUpstreamHandler {
+	private Log logger = LogFactory.getLog(FileServerHandler.class);
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
@@ -58,8 +62,11 @@ public class FileServerHandler extends SimpleChannelUpstreamHandler {
 			sendError(ctx, METHOD_NOT_ALLOWED);
 			return;
 		}
-		// ²éÕÒ·şÎñÆ÷ÉÏÃæapp¶ÔÓ¦µÄÂ·¾¶ test: D:\cloud-deploy\DSC01575.JPG
-		final String path = "E:\\tmp\\boss.jar";// sanitizeUri(request.getUri());
+
+		String srcPath = request.getHeader("srcPath");
+		String ipList = request.getHeader("ipList");
+		// æŸ¥æ‰¾æœåŠ¡å™¨ä¸Šé¢appå¯¹åº”çš„è·¯å¾„ test: D:\cloud-deploy\DSC01575.JPG
+		final String path = srcPath;// sanitizeUri(request.getUri());
 		if (path == null) {
 			sendError(ctx, FORBIDDEN);
 			return;
@@ -86,9 +93,10 @@ public class FileServerHandler extends SimpleChannelUpstreamHandler {
 
 		HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
 		setContentLength(response, fileLength);
-		
-		response.setHeader("Content-disposition", "attachment;filename=nimanimanima.jar");
-		
+
+		response.setHeader("Content-disposition",
+				"attachment;filename=" + file.getName());
+
 		Channel ch = e.getChannel();
 
 		// Write the initial line and the header.
@@ -129,6 +137,8 @@ public class FileServerHandler extends SimpleChannelUpstreamHandler {
 			throws Exception {
 		Channel ch = e.getChannel();
 		Throwable cause = e.getCause();
+		logger.error(cause.getMessage(), cause);
+		
 		if (cause instanceof TooLongFrameException) {
 			sendError(ctx, BAD_REQUEST);
 			return;

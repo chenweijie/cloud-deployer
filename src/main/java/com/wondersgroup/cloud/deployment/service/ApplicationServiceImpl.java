@@ -1,6 +1,12 @@
 package com.wondersgroup.cloud.deployment.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.wondersgroup.cloud.deployment.DeployCommand;
 import com.wondersgroup.cloud.deployment.ICommand;
@@ -9,33 +15,43 @@ import com.wondersgroup.cloud.deployment.Node;
 import com.wondersgroup.cloud.deployment.ScheduleDeployCommand;
 import com.wondersgroup.cloud.deployment.file.FileServer;
 
-public final class ApplicatioinServiceImpl implements ApplicationService,
+public final class ApplicationServiceImpl implements ApplicationService,
 		INodeListener {
+
+	private Log logger = LogFactory.getLog(ApplicationServiceImpl.class);
 
 	private Node node;
 
 	private IAppStatisticService appStatusService;
 
-	public ApplicatioinServiceImpl() {
+	public ApplicationServiceImpl() {
 		this.init();
 	}
 
 	@Override
-	public boolean deploy(String appId) {
+	public boolean deploy(String appId, Map extraParams) {
 		// TODO: 校验是否worker服务器都已经就位
 		// validateApp
-		ICommand command = new DeployCommand(appId, Node.DEPLOY);
+		ICommand command = new DeployCommand(appId, Node.DEPLOY, extraParams);
 		node.executeCommand(command);
 		return true;
 	}
 
 	@Override
-	public boolean deploy(String appId, Date startDate) {
+	public boolean sceduleDeploy(String appId, Map extraParams) {
 		// TODO: 校验是否worker服务器都已经就位
 		// validateApp
-		ICommand command = new ScheduleDeployCommand(appId, Node.DEPLOY_SCHEDULE, startDate);
-		// node.executeCommand(command);
-		node.fireNodeEvent(command.toString(), node.getIp(), command);
+		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
+		try {
+			Date startDate = sdf.parse(String.valueOf(extraParams
+					.get("deployStart")));
+			ICommand command = new ScheduleDeployCommand(appId,
+					Node.DEPLOY_SCHEDULE, extraParams, startDate);
+			// node.executeCommand(command);
+			node.fireNodeEvent(command.toString(), node.getIp(), command);
+		} catch (ParseException ex) {
+			ex.printStackTrace();
+		}
 		return true;
 	}
 
@@ -46,7 +62,7 @@ public final class ApplicatioinServiceImpl implements ApplicationService,
 		node.registerNodeListener((INodeListener) appStatusService);
 		node.registerNodeListener(this);
 		node.registerNodeListener(new FileServer(node));
-		node.registerNodeListener(new BackendScheduler(node));
+		// node.registerNodeListener(new BackendScheduler(node));
 		node.run();
 
 		ICommand init_command = new DeployCommand(Node.INIT);
@@ -71,25 +87,36 @@ public final class ApplicatioinServiceImpl implements ApplicationService,
 		if (srcIp == node.getIp()
 				&& (Node.runStateOf(node.selectKey(msg)) == Node.DEPLOY)) {
 			int currentState = Node.DEPLOY;
-			String content = msg.substring(msg.indexOf(","),
-					msg.lastIndexOf(",") + 1);
-			String[] args = content.split(",");
-			String appId = args[0];
-			int nextState = currentState + 1;
-			ICommand command = new DeployCommand(appId, nextState);
+
+			String[] datas = DeployCommand.toData(msg);
+			String appId = datas[0];
+			String srcPath = datas[1];
+			String ipList = datas[2];
+			int nextState = Node.incrementState(currentState);
+
+			logger.info("state record:::" + Node.debugState(nextState));
+			ICommand command = new DeployCommand(appId, nextState, srcPath,
+					ipList);
 			node.executeCommand(command);
 		}
+		logger.info("service impl:1_" + (srcIp == node.getIp()));
+		logger.info("service impl:1_"
+				+ Node.debugState((Node.runStateOf(node.selectKey(msg)))));
 		if (srcIp == node.getIp()
 				&& (Node.runStateOf(node.selectKey(msg)) == Node.NEXT)) {
 			int currentState = Integer.valueOf(String.valueOf(params[0]));
-			if (currentState < Node.TEST) {
-				String content = msg.substring(msg.indexOf(","),
-						msg.lastIndexOf(",") + 1);
-				String[] args = content.split(",");
-				String appId = args[0];
+			logger.info("state record:::" + Node.debugState(currentState));
+			if (Node.isGoon(currentState)) {
+				String[] datas = DeployCommand.toData(msg);
+				String appId = datas[0];
+				String srcPath = datas[1];
+				String ipList = datas[2];
 
-				int nextState = currentState + 1;
-				ICommand command = new DeployCommand(appId, nextState);
+				int nextState = Node.incrementState(currentState);
+
+				logger.info("service impl:1_" + Node.debugState(nextState));
+				ICommand command = new DeployCommand(appId, nextState, srcPath,
+						ipList);
 				node.executeCommand(command);
 			}
 		}

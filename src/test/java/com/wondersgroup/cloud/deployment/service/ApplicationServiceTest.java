@@ -19,6 +19,8 @@ import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
+import com.wondersgroup.cloud.deployment.Node;
+
 public class ApplicationServiceTest {
 
 	@Before
@@ -35,7 +37,7 @@ public class ApplicationServiceTest {
 		// appService.deploy(appId , startDate);
 	}
 
-	@Test
+	//@Test
 	public void quartz() throws SchedulerException {
 		// Thread deamon = new Thread(new Runnable() {
 		// @Override
@@ -91,26 +93,52 @@ public class ApplicationServiceTest {
 	}
 
 	public static void main(String[] args) throws SchedulerException {
-		// SchedulerFactory sf = new StdSchedulerFactory();// "node.properties"
-		// Scheduler scheduler = sf.getScheduler();
-
-		Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-		scheduler.getContext().put("aaa", "bbbbbb");
-		scheduler.deleteJob(new JobKey("job1", "group1"));
-		JobDetail job = newJob(ExampleJob.class).withIdentity("job1", "group1")
-				.build();
-		job.getJobDataMap().put("appId", "nimanima");
-		// Trigger the job to run now, and then repeat every 40 seconds
-		Trigger trigger = newTrigger()
-				.withIdentity("trigger1", "group1")
-				.startNow()
-				.withSchedule(
-						simpleSchedule().withIntervalInSeconds(40)
-								.repeatForever()).build();
-
-		// Tell quartz to schedule the job using our trigger
-		scheduler.scheduleJob(job, trigger);
-
-		scheduler.start();
+//		public static final int INIT = 0 << STATUS_BITS;
+//		public static final int JOIN = 1 << STATUS_BITS;
+//		public static final int NEXT = 2 << STATUS_BITS;
+//		// 这是一个整体
+//		public static final int DEPLOY = 3 << STATUS_BITS;
+//		public static final int CLOSE = 4 << STATUS_BITS;
+//		public static final int DELETE = 5 << STATUS_BITS;
+//		public static final int TRANSPORT = 6 << STATUS_BITS;
+//		public static final int START = 7 << STATUS_BITS;
+//		public static final int TEST = 8 << STATUS_BITS;
+		
+		System.out.println(Node.INIT ==  Node.runStateOf(268435456));
+		System.out.println(Node.JOIN ==  Node.runStateOf(268435456));
+		System.out.println(Node.NEXT ==  Node.runStateOf(268435456));
+		System.out.println(Node.DEPLOY ==  Node.runStateOf(268435456));
+		System.out.println(Node.CLOSE ==  Node.runStateOf(268435456));
+		System.out.println(Node.DELETE ==  Node.runStateOf(268435456));
+		System.out.println(Node.TRANSPORT ==  Node.runStateOf(268435456));
+		System.out.println(Node.START ==  Node.runStateOf(268435456));
+		System.out.println(Node.TEST ==  Node.runStateOf(268435456));
+		
+		int state = Node.CLOSE | Node.SUCCESS;
+		System.out.println(Node.incrementState(state) == Node.DELETE);
+		
+		System.out.println(Node.isGoon(Node.CLOSE));
+		System.out.println(Node.isGoon(Node.TEST));
+//		// SchedulerFactory sf = new StdSchedulerFactory();// "node.properties"
+//		// Scheduler scheduler = sf.getScheduler();
+//
+//		Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+//		scheduler.getContext().put("aaa", "bbbbbb");
+//		scheduler.deleteJob(new JobKey("job1", "group1"));
+//		JobDetail job = newJob(ExampleJob.class).withIdentity("job1", "group1")
+//				.build();
+//		job.getJobDataMap().put("appId", "nimanima");
+//		// Trigger the job to run now, and then repeat every 40 seconds
+//		Trigger trigger = newTrigger()
+//				.withIdentity("trigger1", "group1")
+//				.startNow()
+//				.withSchedule(
+//						simpleSchedule().withIntervalInSeconds(40)
+//								.repeatForever()).build();
+//
+//		// Tell quartz to schedule the job using our trigger
+//		scheduler.scheduleJob(job, trigger);
+//
+//		scheduler.start();
 	}
 }

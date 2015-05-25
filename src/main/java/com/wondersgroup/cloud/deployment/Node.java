@@ -13,10 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.wondersgroup.cloud.deployment.utils.URL;
 
 public class Node {
-
+	private Log logger = LogFactory.getLog(Node.class);
 	private String ip;// 使用绑定的网卡对应IP 替代
 	private NetworkCommander commander;
 	private Map<Integer, IReceiveHandler> handlerMap = new HashMap<Integer, IReceiveHandler>(
@@ -81,13 +84,22 @@ public class Node {
 	public void executeCommand(ICommand command) {
 		// 2 .如果没有注册join的处理器 就认为是 工作机 可以继续
 		// this.workerIPs.size() == 0 &&
+		logger.info("cmmd:::" + handlerMap.containsKey(Node.JOIN));
 		if (handlerMap.containsKey(Node.JOIN)) {
 			return;
 		}
-		this.fireNodeEvent(command.toString(), this.ip, command);
-		commander.sendMsg(this.ip, command);
+
+		if (command.getKey() == Node.DEPLOY) {
+			logger.info("start real deploy flow.");
+			this.fireNodeEvent(command.toString(), this.ip, command);
+		} else {
+			commander.sendMsg(this.ip, command);
+		}
 	}
 
+	public boolean isClient() {
+		return handlerMap.containsKey(Node.CLOSE);
+	}
 	public void registerReceiveHandler(int key, IReceiveHandler receiveHandler) {
 		handlerMap.put(key, receiveHandler);
 	}
@@ -108,10 +120,9 @@ public class Node {
 	public static final int TEST = 8 << STATUS_BITS;
 	// 定时任务
 	public static final int DEPLOY_SCHEDULE = 9 << STATUS_BITS;
-	
+
 	public static final int SUCCESS = 1;
 	public static final int FAILURE = 2;
-	
 
 	public static int runStateOf(int c) {
 		return c & ~STATUS_CHANGE;
@@ -119,6 +130,50 @@ public class Node {
 
 	public static int stateDetailOf(int c) {
 		return c & STATUS_CHANGE;
+	}
+
+	public static int incrementState(int state) {
+		int _state = state >>> STATUS_BITS;
+		_state++;
+		return _state << STATUS_BITS;
+	}
+
+	public static boolean isGoon(int state) {
+		int _state = state >>> STATUS_BITS;
+		return _state < Node.TEST >>> STATUS_BITS;
+	}
+
+	public static String debugState(int state) {
+		String result = "nothing";
+
+		if (Node.runStateOf(state) == INIT) {
+			result = "init";
+		} else if (Node.runStateOf(state) == JOIN) {
+			result = "join";
+		} else if (Node.runStateOf(state) == NEXT) {
+			result = "next";
+		} else if (Node.runStateOf(state) == DEPLOY) {
+			result = "deploy";
+		} else if (Node.runStateOf(state) == CLOSE) {
+			result = "close";
+		} else if (Node.runStateOf(state) == DELETE) {
+			result = "delete";
+		} else if (Node.runStateOf(state) == TRANSPORT) {
+			result = "transport";
+		} else if (Node.runStateOf(state) == START) {
+			result = "start";
+		} else if (Node.runStateOf(state) == TEST) {
+			result = "test";
+		} else if (Node.runStateOf(state) == DEPLOY_SCHEDULE) {
+			result = "schedule";
+		}
+
+		if (Node.stateDetailOf(state) == Node.SUCCESS) {
+			result += "-1";
+		} else if (Node.stateDetailOf(state) == Node.FAILURE) {
+			result += "-0";
+		}
+		return result;
 	}
 
 	public void changeToSuccess(int c) {
@@ -130,19 +185,34 @@ public class Node {
 	};
 
 	public int selectKey(String msg) {
-		return Integer.valueOf(msg.substring(0, msg.indexOf(",")));
+		if (msg.indexOf(",") > 0) {
+			return Integer.valueOf(msg.substring(0, msg.indexOf(",")));
+		} else {
+			return Integer.valueOf(msg);
+		}
 	}
 
 	public void handleReceive(String msg, InetSocketAddress socketAddress,
 			String srcIp) {
 		// 如果远端IP与本身IP是一样的 那就不做处理
 		if (srcIp.equals(this.ip)) {
+			logger.info("omg!!");
 			return;
 		}
 
 		int _key = this.selectKey(msg);
 		IReceiveHandler handler = handlerMap.get(_key);
-		handler.handle(msg, srcIp);
+		if (handler != null) {
+			handler.handle(msg, srcIp);
+		}
+		if (msg.indexOf(",") > 0) {
+			logger.info("handleReceive.fireNodeEvent:1__"
+					+ Node.debugState(Integer.valueOf(msg.substring(0,
+							msg.indexOf(",")))));
+		} else {
+			logger.info("handleReceive.fireNodeEvent:2__"
+					+ Node.debugState(Integer.valueOf(msg)));
+		}
 		this.fireNodeEvent(msg, srcIp, _key);
 	}
 

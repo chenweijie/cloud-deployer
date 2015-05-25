@@ -1,6 +1,5 @@
 package com.wondersgroup.cloud.deployment;
 
-import java.net.InetSocketAddress;
 
 public class StartReceiveHandler extends AbstractReceiveHandler implements
 		IReceiveHandler {
@@ -12,11 +11,11 @@ public class StartReceiveHandler extends AbstractReceiveHandler implements
 
 	@Override
 	public void handle(String msg, String srcIp) {
-		String content = msg.substring(msg.indexOf(","),
-				msg.lastIndexOf(",") + 1);
-		String[] args = content.split(",");
-		String appId = args[0];
-		String ipList = args[1];
+		String[] datas = DeployCommand.toData(msg);
+		String appId = datas[0];
+		String srcPath = datas[1];
+		String ipList = datas[2];
+
 		// TODO 从IPList列表中找到是否是本地IP
 		// 如果是的话 在本地执行 execute相关指令
 		try {
@@ -24,11 +23,11 @@ public class StartReceiveHandler extends AbstractReceiveHandler implements
 					"/root/apache-tomcat-6.0.39/server_start.sh " + appId);
 			proc.waitFor();
 			node.executeCommand(new DeployCommand(appId, Node.START
-					| Node.SUCCESS));
+					| Node.SUCCESS, srcPath, ipList));
 		} catch (Exception e) {
 			e.printStackTrace();
 			node.executeCommand(new DeployCommand(appId, Node.START
-					| Node.FAILURE));
+					| Node.FAILURE, srcPath, ipList));
 		}
 	}
 
