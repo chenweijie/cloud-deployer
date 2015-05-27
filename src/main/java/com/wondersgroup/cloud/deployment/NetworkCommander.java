@@ -4,7 +4,7 @@ import java.net.DatagramPacket;
 
 public interface NetworkCommander {
 
-	void acceptMsg(DatagramPacket recv);
+	void acceptMsg();
 
 	void sendMsg(String ip, ICommand command);
 

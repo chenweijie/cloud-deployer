@@ -1,8 +1,10 @@
 package com.wondersgroup.cloud.deployment.service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,9 +25,8 @@ public class ApplicationStatisticListener implements INodeListener,
 
 	private Node node;
 
-	private Map<String, Map<String, Integer>> appStatus = new HashMap<String, Map<String, Integer>>(
-			2);
-
+	private Map<String, Map<String, Integer>> appStatus = new HashMap<String, Map<String, Integer>>();
+	
 	public ApplicationStatisticListener(Node node) {
 		this.node = node;
 	}
@@ -33,6 +34,7 @@ public class ApplicationStatisticListener implements INodeListener,
 	@Override
 	public int getStatus(String appId) {
 		// 这里规则是 如果有一个server是0状态 那么就代表该app这个状态为0 ,比如 关闭状态失败，其它就关闭成功
+		// logger.info("shangmian:::" + this.appStatus);
 		if (this.appStatus.containsKey(appId)) {
 			Iterator<Integer> iter = this.appStatus.get(appId).values()
 					.iterator();
@@ -42,8 +44,12 @@ public class ApplicationStatisticListener implements INodeListener,
 				if (status == Node.DEPLOY) {
 					return status;
 				} else {
+					logger.info("nimei11--" + Node.debugState(status));
 					int realOne = Node.stateDetailOf(status);
-					result = Node.runStateOf(status);
+					result = status;// Node.runStateOf(status);
+
+					logger.info("nimei22--" + Node.debugState(result));
+					logger.info("nimei33--" + realOne);
 					if (realOne == Node.FAILURE) {
 						return status;
 					}
@@ -64,7 +70,11 @@ public class ApplicationStatisticListener implements INodeListener,
 			ICommand command = (ICommand) params[0];
 			String appId = command.getAppId();
 			String[] ips = command.getDoingIPs();
-			this.updateStatus(appId, ips, Node.DEPLOY, null, null);
+
+			// 初始化下 这里直接把对应的值给晴空掉
+			logger.info("init---------------------" + appId);
+			this.resetApp(appId);
+			this.updateStatus(appId.trim(), ips, Node.DEPLOY, null, null);
 		} else if (node.getIp() != srcIp
 				&& Node.runStateOf(node.selectKey(msg)) != Node.JOIN) {
 			// 加盟节点不做业务信息记录
@@ -77,21 +87,32 @@ public class ApplicationStatisticListener implements INodeListener,
 			String srcPath = datas[1];
 			String ipList = datas[2];
 
-			this.updateStatus(appId, new String[] { srcIp }, status, srcPath,
+			this.updateStatus(appId.trim(), new String[] { srcIp }, status, srcPath,
 					ipList);
+		}
+	}
+
+	private void resetApp(String appId) {
+		Map<String, Integer> serverStatus = this.appStatus.get(appId);
+		if (serverStatus != null) {
+			Iterator<String> servers = serverStatus.keySet().iterator();
+			while (servers.hasNext()) {
+				String server = servers.next();
+				serverStatus.put(server, 0);
+			}
 		}
 	}
 
 	private void updateStatus(String appId, String[] ips, int status,
 			String srcPath, String ipList) {
 		if (!this.appStatus.containsKey(appId)) {
-			this.appStatus.put(appId, new HashMap<String, Integer>(2));
+			this.appStatus.put(appId, new HashMap<String, Integer>());
 		}
 		for (String ip : ips) {
 			Map<String, Integer> serverStatus = this.appStatus.get(appId);
 			serverStatus.put(ip, status);
 		}
-
+		
 		if (ips.length == 1 && status != Node.DEPLOY) {
 			// 检查每个服务器状态看是否可以触发新的状态了
 			logger.info("judge next state start=====================");

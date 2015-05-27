@@ -47,6 +47,8 @@ public class MutilGroupNetworkCommander implements NetworkCommander {
 	public void sendMsg(String ip, ICommand command) {
 		logger.info("send msg:::" + ip);
 		String msg = command.toString() + "," + ip;
+		logger.info("send msg detail:::" + command.getClass().getSimpleName());
+		logger.info("send msg detail:::" + msg);
 		DatagramPacket hi = new DatagramPacket(msg.getBytes(), msg.length(),
 				mutilcastAddress, mutilcastSocket.getLocalPort());
 		try {
@@ -69,8 +71,10 @@ public class MutilGroupNetworkCommander implements NetworkCommander {
 	}
 
 	@Override
-	public void acceptMsg(DatagramPacket recv) {
+	public void acceptMsg() {
 		try {
+			byte[] buf = new byte[1024];
+			DatagramPacket recv = new DatagramPacket(buf, buf.length);
 			mutilcastSocket.receive(recv);
 			logger.info("receive data start==================================");
 			logger.info("src host:::"

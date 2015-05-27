@@ -67,11 +67,10 @@ public class Node {
 
 			@Override
 			public void run() {
-				byte[] buf = new byte[1024];
-				DatagramPacket recv = new DatagramPacket(buf, buf.length);
 				// 不停接受 外部传来的消息，交给注册的处理器处理
 				while (true) {
-					commander.acceptMsg(recv);
+					// recv
+					commander.acceptMsg();
 				}
 			}
 
@@ -100,6 +99,7 @@ public class Node {
 	public boolean isClient() {
 		return handlerMap.containsKey(Node.CLOSE);
 	}
+
 	public void registerReceiveHandler(int key, IReceiveHandler receiveHandler) {
 		handlerMap.put(key, receiveHandler);
 	}
@@ -141,6 +141,12 @@ public class Node {
 	public static boolean isGoon(int state) {
 		int _state = state >>> STATUS_BITS;
 		return _state < Node.TEST >>> STATUS_BITS;
+	}
+
+	public static int compareOf(int state1, int state2) {
+		int _real1 = state1 >>> STATUS_BITS;
+		int _real2 = state2 >>> STATUS_BITS;
+		return _real1 - _real2;
 	}
 
 	public static String debugState(int state) {
@@ -195,6 +201,7 @@ public class Node {
 	public void handleReceive(String msg, InetSocketAddress socketAddress,
 			String srcIp) {
 		// 如果远端IP与本身IP是一样的 那就不做处理
+		logger.info("client enter....." + srcIp + "-------------" + this.ip);
 		if (srcIp.equals(this.ip)) {
 			logger.info("omg!!");
 			return;
@@ -203,6 +210,7 @@ public class Node {
 		int _key = this.selectKey(msg);
 		IReceiveHandler handler = handlerMap.get(_key);
 		if (handler != null) {
+			logger.info("client..call handler");
 			handler.handle(msg, srcIp);
 		}
 		if (msg.indexOf(",") > 0) {

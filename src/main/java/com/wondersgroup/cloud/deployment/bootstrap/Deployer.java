@@ -1,6 +1,7 @@
 package com.wondersgroup.cloud.deployment.bootstrap;
 
-import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,8 +9,12 @@ import java.util.Scanner;
 
 import net.sf.json.JSONArray;
 
-import com.wondersgroup.cloud.deployment.service.ApplicationServiceImpl;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.wondersgroup.cloud.deployment.Node;
 import com.wondersgroup.cloud.deployment.service.ApplicationService;
+import com.wondersgroup.cloud.deployment.service.ApplicationServiceImpl;
 
 /*
  * 发命令方 也就是所谓的中心端
@@ -19,6 +24,7 @@ import com.wondersgroup.cloud.deployment.service.ApplicationService;
  * 4.对于指令完整度进行把控（比如出错情况控制）
  */
 public class Deployer {
+	private static Log logger = LogFactory.getLog(Deployer.class);
 
 	public static void main(String[] args) throws UnknownHostException {
 
@@ -39,10 +45,25 @@ public class Deployer {
 			@Override
 			public void run() {
 				// 我也没办法
-				int status = applicationService.getAppStatus("app1");
+				try {
+					FileWriter writer = new FileWriter("/root/app_state.txt", true);
+		            while (true) {
+		            	try {
+							Thread.currentThread().sleep(2000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+		            	int status = applicationService.getAppStatus("app1");
+						writer.write(Node.debugState(status) + "\n");
+						writer.flush();
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
-		deamonAppStatus.setDaemon(true);
+//		deamonAppStatus.setDaemon(true);
 		deamonAppStatus.start();
 
 		// this.srcPath = String.valueOf(extraParams.get("publishDir"))
@@ -57,13 +78,14 @@ public class Deployer {
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.add("10.1.65.105");
 		params.put("appServers", jsonArray.toString());
-		
+
 		while (true) {
 			Scanner sc = new Scanner(System.in);
 			System.out.print("Please enter a cmd : ");
 			String cmmd = sc.nextLine();
 			System.out.println("Your input is : " + cmmd);
 			String[] _args = cmmd.split(" ");
+			logger.info("call depoly service.....");
 			// applicationService.deploy(_args[1], new HashMap(2));
 			applicationService.deploy("app1", params);
 		}

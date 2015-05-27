@@ -32,13 +32,26 @@ public final class ApplicationServiceImpl implements ApplicationService,
 	public boolean deploy(String appId, Map extraParams) {
 		// TODO: 校验是否worker服务器都已经就位
 		// validateApp
-		ICommand command = new DeployCommand(appId, Node.DEPLOY, extraParams);
-		node.executeCommand(command);
-		return true;
+		logger.info("aaaaaa1----"
+				+ Node.runStateOf(this.appStatusService.getStatus(appId)));
+		logger.info("aaaaaa2----"
+				+ (Node.compareOf(
+						Node.runStateOf(this.appStatusService.getStatus(appId)),
+						Node.DEPLOY) >= 0));
+		if (Node.runStateOf(this.appStatusService.getStatus(appId)) == 0
+				|| Node.compareOf(
+						Node.runStateOf(this.appStatusService.getStatus(appId)),
+						Node.DEPLOY) >= 0) {
+			ICommand command = new DeployCommand(appId, Node.DEPLOY,
+					extraParams);
+			node.executeCommand(command);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
-	public boolean sceduleDeploy(String appId, Map extraParams) {
+	public boolean scheduleDeploy(String appId, Map extraParams) {
 		// TODO: 校验是否worker服务器都已经就位
 		// validateApp
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
@@ -62,7 +75,7 @@ public final class ApplicationServiceImpl implements ApplicationService,
 		node.registerNodeListener((INodeListener) appStatusService);
 		node.registerNodeListener(this);
 		node.registerNodeListener(new FileServer(node));
-		// node.registerNodeListener(new BackendScheduler(node));
+		node.registerNodeListener(new BackendScheduler(node));
 		node.run();
 
 		ICommand init_command = new DeployCommand(Node.INIT);
@@ -94,7 +107,10 @@ public final class ApplicationServiceImpl implements ApplicationService,
 			String ipList = datas[2];
 			int nextState = Node.incrementState(currentState);
 
-			logger.info("state record:::" + Node.debugState(nextState));
+			logger.info("state record:1::" + appId);
+			logger.info("state record:2::" + Node.debugState(nextState));
+			logger.info("state record:3::" + srcPath);
+			logger.info("state record:4::" + ipList);
 			ICommand command = new DeployCommand(appId, nextState, srcPath,
 					ipList);
 			node.executeCommand(command);

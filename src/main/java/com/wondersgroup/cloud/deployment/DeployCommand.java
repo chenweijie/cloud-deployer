@@ -33,6 +33,7 @@ public class DeployCommand extends PlainCommand {
 		}
 	}
 
+	// appId, nextState, srcPath, ipList
 	public DeployCommand(String appId, int key, String srcPath,
 			String appServers) {
 		super(key);
@@ -47,7 +48,11 @@ public class DeployCommand extends PlainCommand {
 
 	@Override
 	public String toString() {
-		return super.getKey() + "," + this.getAppId() + ":" + this.srcPath
+		logger.info("deploy command debug:::" + this.getKey());
+		logger.info("deploy command debug:::" + this.getAppId());
+		logger.info("deploy command debug:::" + this.srcPath);
+		logger.info("deploy command debug:::" + this.appServers);
+		return this.getKey() + "," + this.getAppId() + ":" + this.srcPath
 				+ ":" + this.appServers;
 	}
 
@@ -63,14 +68,18 @@ public class DeployCommand extends PlainCommand {
 	}
 
 	public static String[] toData(String msg) {
-		logger.info(msg);
 		// 过滤掉key 也就是appId
-		String content = msg.substring(msg.indexOf(","));
+		// 
+		String content = msg.substring(msg.indexOf(",") + 1);
 		String[] args = content.split(":");
 		String appId = args[0];
 		String srcPath = args[1];
 		String ipList = args[2];
 		return new String[] { appId, srcPath, ipList };
 	}
-
+public static void main(String[] args) {
+	System.out.println(Node.compareOf(Node.DELETE, Node.DEPLOY) >= 0);
+	System.out.println(Node.compareOf(Node.DEPLOY, Node.DEPLOY) >= 0);
+	System.out.println(Node.compareOf(Node.INIT, Node.DEPLOY) < 0);
+}
 }

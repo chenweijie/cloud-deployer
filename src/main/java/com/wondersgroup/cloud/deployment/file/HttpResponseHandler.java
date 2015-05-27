@@ -40,7 +40,7 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
-		logger.info("receive msg...");
+		// logger.info("receive msg...");
 		if (e.getMessage() instanceof HttpResponse) {
 			DefaultHttpResponse httpResponse = (DefaultHttpResponse) e
 					.getMessage();
