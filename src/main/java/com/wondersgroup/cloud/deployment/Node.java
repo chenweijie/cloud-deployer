@@ -1,7 +1,6 @@
 package com.wondersgroup.cloud.deployment;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -54,7 +53,7 @@ public class Node {
 				while (ips.hasMoreElements()) {
 					// 直接返回绑定的第一个IP
 					String bindIp = ips.nextElement().getHostAddress();
-					System.out.println("bindIp:::" + bindIp);
+					logger.info("bindIp:::" + bindIp);
 					return bindIp;
 				}
 			}
@@ -75,7 +74,7 @@ public class Node {
 			}
 
 		});
-		deamon.setName("Node BackEnd Thread");
+		deamon.setName("Node BackEnd Thread.");
 		deamon.setDaemon(true);
 		deamon.start();
 	}
@@ -87,7 +86,6 @@ public class Node {
 		if (handlerMap.containsKey(Node.JOIN)) {
 			return;
 		}
-
 		if (command.getKey() == Node.DEPLOY) {
 			logger.info("start real deploy flow.");
 			this.fireNodeEvent(command.toString(), this.ip, command);

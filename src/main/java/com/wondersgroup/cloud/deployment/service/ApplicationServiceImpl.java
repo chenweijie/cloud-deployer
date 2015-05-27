@@ -3,12 +3,14 @@ package com.wondersgroup.cloud.deployment.service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.wondersgroup.cloud.deployment.DeployCommand;
+import com.wondersgroup.cloud.deployment.EventListener;
 import com.wondersgroup.cloud.deployment.ICommand;
 import com.wondersgroup.cloud.deployment.INodeListener;
 import com.wondersgroup.cloud.deployment.Node;
@@ -122,12 +124,15 @@ public final class ApplicationServiceImpl implements ApplicationService,
 				&& (Node.runStateOf(node.selectKey(msg)) == Node.NEXT)) {
 			int currentState = Integer.valueOf(String.valueOf(params[0]));
 			logger.info("state record:::" + Node.debugState(currentState));
+			String[] datas = DeployCommand.toData(msg);
+			String appId = datas[0];
+			String srcPath = datas[1];
+			String ipList = datas[2];
+			if (evenMap.containsKey(Node.runStateOf(currentState))) {
+				evenMap.get(Node.runStateOf(currentState)).execute(appId);
+			}
+			
 			if (Node.isGoon(currentState)) {
-				String[] datas = DeployCommand.toData(msg);
-				String appId = datas[0];
-				String srcPath = datas[1];
-				String ipList = datas[2];
-
 				int nextState = Node.incrementState(currentState);
 
 				logger.info("service impl:1_" + Node.debugState(nextState));
@@ -136,6 +141,14 @@ public final class ApplicationServiceImpl implements ApplicationService,
 				node.executeCommand(command);
 			}
 		}
+	}
+
+	private Map<Integer, EventListener> evenMap = new HashMap<Integer, EventListener>(
+			2);
+
+	@Override
+	public void registerEventListener(int event, EventListener eventListener) {
+		evenMap.put(event, eventListener);
 	}
 
 }

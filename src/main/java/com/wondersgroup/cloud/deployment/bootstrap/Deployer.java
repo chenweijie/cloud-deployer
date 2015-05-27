@@ -12,6 +12,7 @@ import net.sf.json.JSONArray;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.wondersgroup.cloud.deployment.EventListener;
 import com.wondersgroup.cloud.deployment.Node;
 import com.wondersgroup.cloud.deployment.service.ApplicationService;
 import com.wondersgroup.cloud.deployment.service.ApplicationServiceImpl;
@@ -41,6 +42,12 @@ public class Deployer {
 		// node.executeCommand(command);
 
 		final ApplicationService applicationService = new ApplicationServiceImpl();
+		applicationService.registerEventListener(Node.TEST, new EventListener() {
+			@Override
+			public void execute(String appId) {
+				logger.info(appId + "完蛋咯！");
+			}});
+		
 		Thread deamonAppStatus = new Thread(new Runnable() {
 			@Override
 			public void run() {
