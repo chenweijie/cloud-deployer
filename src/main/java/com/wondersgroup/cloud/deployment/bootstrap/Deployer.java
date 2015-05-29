@@ -3,6 +3,7 @@ package com.wondersgroup.cloud.deployment.bootstrap;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -86,6 +87,8 @@ public class Deployer {
 		jsonArray.add("10.1.65.105");
 		params.put("appServers", jsonArray.toString());
 
+		params.put("deployStart", "2015-5-29");
+		
 		while (true) {
 			Scanner sc = new Scanner(System.in);
 			System.out.print("Please enter a cmd : ");
@@ -94,7 +97,7 @@ public class Deployer {
 			String[] _args = cmmd.split(" ");
 			logger.info("call depoly service.....");
 			// applicationService.deploy(_args[1], new HashMap(2));
-			applicationService.deploy("app1", params);
+			applicationService.scheduleDeploy("app1", params);
 		}
 	}
 
