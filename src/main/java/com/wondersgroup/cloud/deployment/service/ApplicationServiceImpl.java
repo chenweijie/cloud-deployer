@@ -56,7 +56,7 @@ public final class ApplicationServiceImpl implements ApplicationService,
 	public boolean scheduleDeploy(String appId, Map extraParams) {
 		// TODO: 校验是否worker服务器都已经就位
 		// validateApp
-		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		try {
 			Date startDate = sdf.parse(String.valueOf(extraParams
 					.get("deployStart")));

@@ -7,8 +7,12 @@ import static org.quartz.TriggerBuilder.newTrigger;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -31,6 +35,7 @@ import com.wondersgroup.cloud.deployment.ScheduleDeployCommand;
  * */
 public class BackendScheduler implements INodeListener {
 
+	private static Log logger = LogFactory.getLog(BackendScheduler.class);
 	private Node node;
 
 	private String timePart;
@@ -55,15 +60,18 @@ public class BackendScheduler implements INodeListener {
 		if (srcIp == node.getIp()
 				&& (Node.runStateOf(node.selectKey(msg)) == Node.INIT)) {
 			try {
+				logger.info("start backend system.");
 				SchedulerFactory sf = new StdSchedulerFactory("node.properties");
 				scheduler = sf.getScheduler();
 				scheduler.getContext().put("node", node);
 				scheduler.start();
 			} catch (SchedulerException e) {
 				e.printStackTrace();
+				logger.error("error1___" + e.getMessage(), e);
 			}
 		} else if (srcIp == node.getIp()
 				&& (Node.runStateOf(node.selectKey(msg)) == Node.DEPLOY_SCHEDULE)) {
+			logger.info("schedule deploy start....");
 			ScheduleDeployCommand command = (ScheduleDeployCommand) params[0];
 			String appId = command.getAppId();
 			Date startDate = command.getStartDate();
@@ -72,16 +80,16 @@ public class BackendScheduler implements INodeListener {
 			String ipList = datas[2];
 			try {
 				scheduler.deleteJob(new JobKey("job-" + appId, "app-group"));
-				
+
 				// // 初始化 quartz等对象 trigger job等等
 				JobDetail job = newJob(QuartzJob.class)
 						.withIdentity("job-" + appId, "app-group")
-						.storeDurably(true)
-						.build();
+						.storeDurably(true).build();
 				job.getJobDataMap().put("appId", appId);
 				job.getJobDataMap().put("srcPath", srcPath);
 				job.getJobDataMap().put("ipList", ipList);
 				String cronExpress = this.parse(startDate);
+				logger.info("schedule deploy start...." + cronExpress);
 				Trigger trigger = newTrigger()
 						.withIdentity("trigger-" + appId, "app-group")
 						.startNow().withSchedule(cronSchedule(cronExpress))
@@ -89,11 +97,31 @@ public class BackendScheduler implements INodeListener {
 				scheduler.scheduleJob(job, trigger);
 			} catch (SchedulerException e) {
 				e.printStackTrace();
+				logger.error("error2___" + e.getMessage(), e);
 			}
 		}
 	}
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("dd MM ? YYYY");
+	public static void main(String[] args) {
+		Map params = new HashMap();
+		params.put("deployStart", "2015-5-29");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			Date startDate = sdf
+					.parse(String.valueOf(params.get("deployStart")));
+			System.out.println("aa--" + startDate);
+			System.out.println("aa--" + startDate.getYear());
+			System.out.println("aa--" + startDate.getMonth());
+			System.out.println("aa--" + startDate.getDay());
+			SimpleDateFormat sdf2 = new SimpleDateFormat("dd MM ? yyyy");
+			String result = sdf2.format(startDate);
+			System.out.println("aa--" + result);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	private SimpleDateFormat sdf = new SimpleDateFormat("dd MM ? yyyy");
 
 	private String parse(Date startDate) {
 		// like this 21 05 ? 2015
