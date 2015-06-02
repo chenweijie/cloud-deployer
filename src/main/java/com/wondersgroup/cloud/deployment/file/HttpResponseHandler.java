@@ -48,9 +48,28 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
 					.substring(20);
 			// downloadFile = new File(System.getProperty("user.dir")+
 			// File.separator + "download" + fileName);
-			downloadFile = new File("/root/apache-tomcat-6.0.39/webapps/"
+			downloadFile = new File("/root/apache-tomcat-6.0.39/webapps/" // 
 					+ fileName);
+			httpResponse.getContent().readableBytes();
 			readingChunks = httpResponse.isChunked();
+
+			if (!readingChunks && httpResponse.getContent().readableBytes() > 0) {
+				// 直接传输文件了
+				ChannelBuffer buffer = httpResponse.getContent();
+				if (fOutputStream == null) {
+					fOutputStream = new FileOutputStream(downloadFile);
+				}
+				while (buffer.readable()) {
+					byte[] dst = new byte[buffer.readableBytes()];
+					buffer.readBytes(dst);
+					fOutputStream.write(dst);
+				}
+				fOutputStream.flush();
+				if (node != null) {
+					node.executeCommand(new DeployCommand(appId, Node.TRANSPORT
+							| Node.SUCCESS, this.srcPath, this.ipList));
+				}
+			}
 		} else {
 			HttpChunk httpChunk = (HttpChunk) e.getMessage();
 			if (!httpChunk.isLast()) {
@@ -73,7 +92,9 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
 			fOutputStream.flush();
 		}
 		if (!readingChunks) {
-			fOutputStream.close();
+			if (fOutputStream != null) {
+				fOutputStream.close();
+			}
 		}
 	}
 

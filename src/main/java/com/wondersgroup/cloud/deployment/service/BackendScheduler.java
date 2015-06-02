@@ -19,6 +19,8 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
+import org.quartz.Trigger.TriggerState;
+import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 
 import com.wondersgroup.cloud.deployment.DeployCommand;
@@ -79,8 +81,12 @@ public class BackendScheduler implements INodeListener {
 			String srcPath = datas[1];
 			String ipList = datas[2];
 			try {
-				scheduler.deleteJob(new JobKey("job-" + appId, "app-group"));
+				// TriggerState t_state =
+				// scheduler.getTriggerState(TriggerKey.triggerKey("trigger-" +
+				// appId, "app-group"));
+				// logger.info("trigger state..." + t_state);
 
+				scheduler.deleteJob(new JobKey("job-" + appId, "app-group"));
 				// // 初始化 quartz等对象 trigger job等等
 				JobDetail job = newJob(QuartzJob.class)
 						.withIdentity("job-" + appId, "app-group")
@@ -90,6 +96,12 @@ public class BackendScheduler implements INodeListener {
 				job.getJobDataMap().put("ipList", ipList);
 				String cronExpress = this.parse(startDate);
 				logger.info("schedule deploy start...." + cronExpress);
+
+				logger.info("params1:::" + appId);
+				logger.info("params2:::" + srcPath);
+				logger.info("params3:::" + ipList);
+				logger.info("params4:::" + cronExpress);
+
 				Trigger trigger = newTrigger()
 						.withIdentity("trigger-" + appId, "app-group")
 						.startNow().withSchedule(cronSchedule(cronExpress))

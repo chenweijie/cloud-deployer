@@ -87,7 +87,7 @@ public class Deployer {
 		jsonArray.add("10.1.65.105");
 		params.put("appServers", jsonArray.toString());
 
-		params.put("deployStart", "2015-5-29");
+		params.put("deployStart", "2015-6-1");
 		
 		while (true) {
 			Scanner sc = new Scanner(System.in);

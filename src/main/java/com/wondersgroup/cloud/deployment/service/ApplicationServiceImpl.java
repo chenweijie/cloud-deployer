@@ -130,6 +130,7 @@ public final class ApplicationServiceImpl implements ApplicationService,
 			String ipList = datas[2];
 			if (evenMap.containsKey(Node.runStateOf(currentState))) {
 				evenMap.get(Node.runStateOf(currentState)).execute(appId);
+				evenMap.remove(Node.runStateOf(currentState));
 			}
 			
 			if (Node.isGoon(currentState)) {

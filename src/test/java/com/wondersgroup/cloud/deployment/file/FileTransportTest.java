@@ -33,6 +33,7 @@ public class FileTransportTest {
 						new NioServerSocketChannelFactory(
 								Executors.newCachedThreadPool(),
 								Executors.newCachedThreadPool()));
+				bootstrap.setOption("tcpNoDelay", true);
 
 				bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 
@@ -41,7 +42,7 @@ public class FileTransportTest {
 						ChannelPipeline pipeline = pipeline();
 						pipeline.addLast("decoder", new HttpRequestDecoder());
 						pipeline.addLast("aggregator", new HttpChunkAggregator(
-								65536));
+								65536));// 
 						pipeline.addLast("encoder", new HttpResponseEncoder());
 						pipeline.addLast("chunkedWriter",
 								new ChunkedWriteHandler());
@@ -70,9 +71,13 @@ public class FileTransportTest {
 			ChannelFuture writeFuture = httpClient.write(request);
 			if (httpClient.checkFutureState(writeFuture)) {
 				System.out.println("write ok");
-				writeFuture.getChannel().close();
-				httpClient.close();
+				// writeFuture.getChannel().close();
+				// httpClient.close();
 			}
+		}
+
+		while (true) {
+
 		}
 	}
 

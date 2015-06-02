@@ -37,13 +37,12 @@ public class HttpClient {
 		bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
+		bootstrap.setOption("tcpNoDelay", true);
 		HttpResponseHandler clientHandler = new HttpResponseHandler(node, this.appId, this.srcPath, this.ipList);
 		bootstrap.setPipelineFactory(new HttpClientPipelineFactory(
 				clientHandler));
-
-		//bootstrap.setOption("tcpNoDelay", true);
+		bootstrap.setOption("tcpNoDelay", true);
 		//bootstrap.setOption("keepAlive", true);
-
 		return bootstrap.connect(new InetSocketAddress(host, port));
 	}
 

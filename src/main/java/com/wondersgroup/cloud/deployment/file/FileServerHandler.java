@@ -66,7 +66,7 @@ public class FileServerHandler extends SimpleChannelUpstreamHandler {
 		String srcPath = request.getHeader("srcPath");
 		String ipList = request.getHeader("ipList");
 		// 查找服务器上面app对应的路径 test: D:\cloud-deploy\DSC01575.JPG
-		final String path = srcPath;// sanitizeUri(request.getUri());
+		final String path = srcPath;// sanitizeUri(request.getUri()); "D:\\cloud-deploy\\AppTest.war";// 
 		if (path == null) {
 			sendError(ctx, FORBIDDEN);
 			return;

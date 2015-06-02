@@ -53,7 +53,7 @@ public class FileServer implements INodeListener {
 					ChannelPipeline pipeline = pipeline();
 					pipeline.addLast("decoder", new HttpRequestDecoder());
 					pipeline.addLast("aggregator", new HttpChunkAggregator(
-							65536));
+							65536));// 
 					pipeline.addLast("encoder", new HttpResponseEncoder());
 					pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
 					pipeline.addLast("handler", new FileServerHandler());
