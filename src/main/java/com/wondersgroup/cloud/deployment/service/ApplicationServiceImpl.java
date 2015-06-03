@@ -9,12 +9,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.wondersgroup.cloud.deployment.CloseReceiveHandler;
 import com.wondersgroup.cloud.deployment.DeployCommand;
 import com.wondersgroup.cloud.deployment.EventListener;
 import com.wondersgroup.cloud.deployment.ICommand;
 import com.wondersgroup.cloud.deployment.INodeListener;
-import com.wondersgroup.cloud.deployment.IReceiveHandler;
 import com.wondersgroup.cloud.deployment.Node;
 import com.wondersgroup.cloud.deployment.PrepareReceiveHandler;
 import com.wondersgroup.cloud.deployment.ScheduleDeployCommand;
@@ -37,9 +35,9 @@ public final class ApplicationServiceImpl implements ApplicationService,
 	public boolean deploy(String appId, Map extraParams) {
 		// TODO: 校验是否worker服务器都已经就位
 		// validateApp
-		logger.info("aaaaaa1----"
+		logger.info("app-deploy1----"
 				+ Node.runStateOf(this.appStatusService.getStatus(appId)));
-		logger.info("aaaaaa2----"
+		logger.info("app-deploy2----"
 				+ (Node.compareOf(
 						Node.runStateOf(this.appStatusService.getStatus(appId)),
 						Node.DEPLOY) >= 0));
