@@ -27,4 +27,9 @@ public class PlainCommand implements ICommand {
 		return new String[]{};
 	}
 
+	@Override
+	public String getSrcIp() {
+		return null;
+	}
+
 }

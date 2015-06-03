@@ -15,6 +15,7 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.alibaba.druid.util.StringUtils;
 import com.wondersgroup.cloud.deployment.utils.URL;
 
 public class Node {
@@ -90,7 +91,13 @@ public class Node {
 			logger.info("start real deploy flow.");
 			this.fireNodeEvent(command.toString(), this.ip, command);
 		} else {
-			commander.sendMsg(this.ip, command);
+			String ip = this.ip;
+			if (!StringUtils.isEmpty(command.getSrcIp())) {
+				ip = command.getSrcIp();
+			}
+			logger.info("cmmd::normal cmmd1:::" + ip);
+			logger.info("cmmd::normal cmmd2:::" + command.getSrcIp());
+			commander.sendMsg(ip, command);
 		}
 	}
 
@@ -111,13 +118,14 @@ public class Node {
 	public static final int NEXT = 2 << STATUS_BITS;
 	// 这是一个整体
 	public static final int DEPLOY = 3 << STATUS_BITS;
-	public static final int CLOSE = 4 << STATUS_BITS;
-	public static final int DELETE = 5 << STATUS_BITS;
-	public static final int TRANSPORT = 6 << STATUS_BITS;
-	public static final int START = 7 << STATUS_BITS;
-	public static final int TEST = 8 << STATUS_BITS;
+	public static final int PREPARE = 4 << STATUS_BITS;
+	public static final int CLOSE = 5 << STATUS_BITS;
+	public static final int DELETE = 6 << STATUS_BITS;
+	public static final int TRANSPORT = 7 << STATUS_BITS;
+	public static final int START = 8 << STATUS_BITS;
+	public static final int TEST = 9 << STATUS_BITS;
 	// 定时任务
-	public static final int DEPLOY_SCHEDULE = 9 << STATUS_BITS;
+	public static final int DEPLOY_SCHEDULE = 10 << STATUS_BITS;
 
 	public static final int SUCCESS = 1;
 	public static final int FAILURE = 2;
@@ -170,6 +178,8 @@ public class Node {
 			result = "test";
 		} else if (Node.runStateOf(state) == DEPLOY_SCHEDULE) {
 			result = "schedule";
+		} else if (Node.runStateOf(state) == Node.PREPARE) {
+			result = "prepare";
 		}
 
 		if (Node.stateDetailOf(state) == Node.SUCCESS) {
@@ -196,21 +206,15 @@ public class Node {
 		}
 	}
 
-	public void handleReceive(String msg, InetSocketAddress socketAddress,
-			String srcIp) {
+	public void handleReceive(String msg, String srcIp) {
 		// 如果远端IP与本身IP是一样的 那就不做处理
 		logger.info("client enter....." + srcIp + "-------------" + this.ip);
 		if (srcIp.equals(this.ip)) {
 			logger.info("omg!!");
 			return;
 		}
-
 		int _key = this.selectKey(msg);
-		IReceiveHandler handler = handlerMap.get(_key);
-		if (handler != null) {
-			logger.info("client..call handler");
-			handler.handle(msg, srcIp);
-		}
+		this.callHandler(_key, msg, srcIp);
 		if (msg.indexOf(",") > 0) {
 			logger.info("handleReceive.fireNodeEvent:1__"
 					+ Node.debugState(Integer.valueOf(msg.substring(0,
@@ -222,6 +226,14 @@ public class Node {
 		this.fireNodeEvent(msg, srcIp, _key);
 	}
 
+	public void callHandler(int _key, String msg, String srcIp) {
+		IReceiveHandler handler = handlerMap.get(_key);
+		if (handler != null) {
+			logger.info("client..call handler");
+			handler.handle(msg, srcIp);
+		}
+	}
+	
 	public void fireNodeEvent(String msg, String srcIp, Object... params) {
 		for (INodeListener listener : nodeListeners) {
 			listener.fireNodeEvent(msg, srcIp, params);

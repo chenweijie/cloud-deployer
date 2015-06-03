@@ -15,6 +15,8 @@ public class DeployCommand extends PlainCommand {
 	// 源文件路径
 	private String srcPath;
 	private String appServers;
+	// 本地模拟原创调用使用到的参数
+	private String srcIp;
 
 	public DeployCommand(int key) {
 		this("", key, null);
@@ -42,8 +44,23 @@ public class DeployCommand extends PlainCommand {
 		this.appServers = appServers;
 	}
 
+	// appId, nextState, srcPath, ipList
+	public DeployCommand(String appId, int key, String srcPath,
+			String appServers, String srcIp) {
+		this(appId, key, srcPath, appServers);
+		this.srcIp = srcIp;
+	}
+
 	public String getAppId() {
 		return appId;
+	}
+
+	public String getSrcIp() {
+		return srcIp;
+	}
+
+	public void setSrcIp(String srcIp) {
+		this.srcIp = srcIp;
 	}
 
 	@Override
@@ -52,8 +69,8 @@ public class DeployCommand extends PlainCommand {
 		logger.info("deploy command debug:::" + this.getAppId());
 		logger.info("deploy command debug:::" + this.srcPath);
 		logger.info("deploy command debug:::" + this.appServers);
-		return this.getKey() + "," + this.getAppId() + ":" + this.srcPath
-				+ ":" + this.appServers;
+		return this.getKey() + "," + this.getAppId() + ":" + this.srcPath + ":"
+				+ this.appServers;
 	}
 
 	@Override
@@ -63,13 +80,12 @@ public class DeployCommand extends PlainCommand {
 		JSONArray jsonArray = JSONArray.fromObject(this.appServers);
 		String[] ips = (String[]) jsonArray
 				.toArray(new String[jsonArray.size()]);
-		// String[] ips = new String[] { "随便写的IPs" };
 		return ips;
 	}
 
 	public static String[] toData(String msg) {
 		// 过滤掉key 也就是appId
-		// 
+		//
 		String content = msg.substring(msg.indexOf(",") + 1);
 		String[] args = content.split(":");
 		String appId = args[0];
@@ -77,9 +93,10 @@ public class DeployCommand extends PlainCommand {
 		String ipList = args[2];
 		return new String[] { appId, srcPath, ipList };
 	}
-public static void main(String[] args) {
-	System.out.println(Node.compareOf(Node.DELETE, Node.DEPLOY) >= 0);
-	System.out.println(Node.compareOf(Node.DEPLOY, Node.DEPLOY) >= 0);
-	System.out.println(Node.compareOf(Node.INIT, Node.DEPLOY) < 0);
-}
+
+	public static void main(String[] args) {
+		System.out.println(Node.compareOf(Node.DELETE, Node.DEPLOY) >= 0);
+		System.out.println(Node.compareOf(Node.DEPLOY, Node.DEPLOY) >= 0);
+		System.out.println(Node.compareOf(Node.INIT, Node.DEPLOY) < 0);
+	}
 }

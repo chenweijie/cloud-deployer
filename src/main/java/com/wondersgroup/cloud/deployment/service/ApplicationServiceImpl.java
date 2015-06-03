@@ -9,11 +9,14 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.wondersgroup.cloud.deployment.CloseReceiveHandler;
 import com.wondersgroup.cloud.deployment.DeployCommand;
 import com.wondersgroup.cloud.deployment.EventListener;
 import com.wondersgroup.cloud.deployment.ICommand;
 import com.wondersgroup.cloud.deployment.INodeListener;
+import com.wondersgroup.cloud.deployment.IReceiveHandler;
 import com.wondersgroup.cloud.deployment.Node;
+import com.wondersgroup.cloud.deployment.PrepareReceiveHandler;
 import com.wondersgroup.cloud.deployment.ScheduleDeployCommand;
 import com.wondersgroup.cloud.deployment.file.FileServer;
 
@@ -73,6 +76,8 @@ public final class ApplicationServiceImpl implements ApplicationService,
 	private void init() {
 		// 对外访问入口
 		this.node = new Node();
+		node.registerReceiveHandler(Node.PREPARE, new PrepareReceiveHandler(node));
+		
 		appStatusService = new ApplicationStatisticListener(node);
 		node.registerNodeListener((INodeListener) appStatusService);
 		node.registerNodeListener(this);
@@ -113,9 +118,11 @@ public final class ApplicationServiceImpl implements ApplicationService,
 			logger.info("state record:2::" + Node.debugState(nextState));
 			logger.info("state record:3::" + srcPath);
 			logger.info("state record:4::" + ipList);
-			ICommand command = new DeployCommand(appId, nextState, srcPath,
-					ipList);
-			node.executeCommand(command);
+//			ICommand command = new DeployCommand(appId, nextState, srcPath,
+//					ipList);
+//			node.executeCommand(command);
+			// 这里直接本地发送了 不去走command流程了 
+			node.callHandler(nextState, msg, srcIp);
 		}
 		logger.info("service impl:1_" + (srcIp == node.getIp()));
 		logger.info("service impl:1_"

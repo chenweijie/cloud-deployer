@@ -93,6 +93,7 @@ public class MutilGroupNetworkCommander implements NetworkCommander {
 				logger.info("state:1__"
 						+ Node.debugState(Integer.valueOf(msg.substring(0,
 								msg.indexOf(",")))));
+				
 				String ipList = _datas[2];
 
 				logger.info("state:1.1__" + ipList);
@@ -103,19 +104,16 @@ public class MutilGroupNetworkCommander implements NetworkCommander {
 				logger.info("state:1.4__" + (jsonArray.contains(node.getIp())));
 				if (node.isClient() && jsonArray.contains(node.getIp())) {
 					// 交给node中注册的指令处理类实现
-					node.handleReceive(msg,
-							(InetSocketAddress) recv.getSocketAddress(), srcIp);
+					node.handleReceive(msg, srcIp);
 				} else if (!node.isClient()) {
 					// 服务端
-					logger.info("state:ssssssssssssssssss");
-					node.handleReceive(msg,
-							(InetSocketAddress) recv.getSocketAddress(), srcIp);
+					logger.info("state: recevice data from client!--" + srcIp);
+					node.handleReceive(msg, srcIp);
 				}
 			} else {
 				logger.info("state:2__" + Node.debugState(Integer.valueOf(msg)));
 				// join command
-				node.handleReceive(msg,
-						(InetSocketAddress) recv.getSocketAddress(), srcIp);
+				node.handleReceive(msg, srcIp);
 			}
 			logger.info("receive data end==================================");
 		} catch (Exception e) {

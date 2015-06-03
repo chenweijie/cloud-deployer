@@ -97,7 +97,7 @@ public class Deployer {
 			String[] _args = cmmd.split(" ");
 			logger.info("call depoly service.....");
 			// applicationService.deploy(_args[1], new HashMap(2));
-			applicationService.scheduleDeploy("app1", params);
+			applicationService.deploy("app1", params);
 		}
 	}
 
