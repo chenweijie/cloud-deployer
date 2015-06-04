@@ -28,6 +28,14 @@ public class PrepareReceiveHandler extends AbstractReceiveHandler {
 		// 查看文件夹是不是存在
 		File srcFile = new File(srcPath);
 		boolean result = srcFile.exists();
+		if (!result) {
+			// node.executeCommand(new DeployCommand(appId, Node.PREPARE| Node.FAILURE, srcPath, ipList, serverIp));
+			// 直接组装一个msg发给统计机器 来推动错误结果发生
+			ICommand cmmd = new DeployCommand(appId, Node.PREPARE| Node.FAILURE, srcPath, ipList);
+			String _msg = cmmd.toString();
+			node.fireNodeEvent(_msg, Node.Local);
+			return;
+		}
 		JSONArray jsonArray = JSONArray.fromObject(ipList);
 		Iterator iter = jsonArray.iterator();
 		while (iter.hasNext()) {

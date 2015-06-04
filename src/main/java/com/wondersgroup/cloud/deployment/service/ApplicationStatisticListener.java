@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.sf.json.JSONArray;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -24,7 +26,7 @@ public class ApplicationStatisticListener implements INodeListener,
 	private Node node;
 
 	private Map<String, Map<String, Integer>> appStatus = new HashMap<String, Map<String, Integer>>();
-	
+
 	public ApplicationStatisticListener(Node node) {
 		this.node = node;
 	}
@@ -85,8 +87,23 @@ public class ApplicationStatisticListener implements INodeListener,
 			String srcPath = datas[1];
 			String ipList = datas[2];
 
-			this.updateStatus(appId.trim(), new String[] { srcIp }, status, srcPath,
-					ipList);
+			this.updateStatus(appId.trim(), new String[] { srcIp }, status,
+					srcPath, ipList);
+		}
+		if (srcIp.equalsIgnoreCase(Node.Local)) {
+			// 现在单独处理本地发起的指令的全局指令
+			int key = node.selectKey(msg);
+			int status = key;// Node.runStateOf(key);
+
+			String[] datas = DeployCommand.toData(msg);
+			String appId = datas[0];
+			String srcPath = datas[1];
+			String ipList = datas[2];
+
+			JSONArray jsonArray = JSONArray.fromObject(ipList);
+			String[] ips = (String[]) jsonArray.toArray(new String[jsonArray
+					.size()]);
+			this.updateStatus(appId.trim(), ips, status, srcPath, ipList);
 		}
 	}
 
@@ -110,7 +127,7 @@ public class ApplicationStatisticListener implements INodeListener,
 			Map<String, Integer> serverStatus = this.appStatus.get(appId);
 			serverStatus.put(ip, status);
 		}
-		
+
 		if (ips.length == 1 && status != Node.DEPLOY) {
 			// 检查每个服务器状态看是否可以触发新的状态了
 			logger.info("judge next state start=====================");

@@ -129,6 +129,7 @@ public class Node {
 
 	public static final int SUCCESS = 1;
 	public static final int FAILURE = 2;
+	public static final String Local = "localhost";
 
 	public static int runStateOf(int c) {
 		return c & ~STATUS_CHANGE;
